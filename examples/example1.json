@@ -1,0 +1,1991 @@
+{
+    "graphResult": {
+        "graphData": {
+            "nodes": {
+                "vDevice/910413163": {
+                    "boxId": "35COLO",
+                    "children": [],
+                    "graphType": "pathLookup",
+                    "id": "vDevice/910413163",
+                    "label": "L35AC112",
+                    "parentPath": null,
+                    "position": {
+                        "x": 40,
+                        "y": 80
+                    },
+                    "sn": "a23ffac",
+                    "type": "switch",
+                    "generatedPackets": {
+                        "vDevice/910413163@Vl119--generated--#0": {
+                            "ifaceName": "Vl119",
+                            "packet": [
+                                {
+                                    "src": [
+                                        "10.35.119.172"
+                                    ],
+                                    "dst": [
+                                        "10.193.0.132"
+                                    ],
+                                    "fragment offset": 0,
+                                    "protocol": "tcp",
+                                    "ttl": 128,
+                                    "type": "ip"
+                                },
+                                {
+                                    "dst": [
+                                        "80",
+                                        "443"
+                                    ],
+                                    "flags": [],
+                                    "src": [
+                                        "1024 .. 65535"
+                                    ],
+                                    "type": "tcp"
+                                }
+                            ],
+                            "nextEdgeIds": [
+                                "vDevice/910413163!L35AC112@Et0/0--vDevice/910416644!L35AC111@Et0/0--#8899"
+                            ],
+                            "severityInfo": {
+                                "0": 0,
+                                "10": 0,
+                                "20": 0,
+                                "30": 0
+                            },
+                            "trafficScore": {
+                                "accepted": 0,
+                                "dropped": 0,
+                                "forwarded": 0,
+                                "total": 0
+                            }
+                        }
+                    },
+                    "style": {
+                        "background": "black"
+                    }
+                },
+                "vDevice/910416644": {
+                    "boxId": "35COLO",
+                    "children": [],
+                    "graphType": "pathLookup",
+                    "id": "vDevice/910416644",
+                    "label": "L35AC111",
+                    "parentPath": null,
+                    "position": {
+                        "x": 200,
+                        "y": 80
+                    },
+                    "sn": "a23ffab",
+                    "type": "switch"
+                },
+                "vDevice/910447043": {
+                    "boxId": "35COLO",
+                    "children": [],
+                    "graphType": "pathLookup",
+                    "id": "vDevice/910447043",
+                    "label": "L35EXR1",
+                    "parentPath": null,
+                    "position": {
+                        "x": 360,
+                        "y": 0
+                    },
+                    "sn": "a23ff65",
+                    "type": "router"
+                },
+                "vDevice/910392991": {
+                    "boxId": "35COLO",
+                    "children": [],
+                    "graphType": "pathLookup",
+                    "id": "vDevice/910392991",
+                    "label": "L35FW2",
+                    "parentPath": null,
+                    "position": {
+                        "x": 400,
+                        "y": 160
+                    },
+                    "sn": "9AJR4UMXS30",
+                    "type": "fw"
+                },
+                "vDevice/910393034": {
+                    "boxId": "AZURE",
+                    "children": [],
+                    "graphType": "pathLookup",
+                    "id": "vDevice/910393034",
+                    "label": "VNetGw.Vpn.WestEurope",
+                    "parentPath": null,
+                    "position": {
+                        "x": 800,
+                        "y": 120
+                    },
+                    "sn": "/subscriptions/7a329198-ceb1-4e25-9ac3-e98855c16377/resourceGroups/LAB-Static/providers/Microsoft.Network/virtualNetworkGateways/VNetGw.Vpn.WestEurope",
+                    "type": "cloudVpnGw"
+                },
+                "vDevice/910393037": {
+                    "boxId": "AZURE",
+                    "children": [],
+                    "graphType": "pathLookup",
+                    "id": "vDevice/910393037",
+                    "label": "VNet-Hub.WestEurope",
+                    "parentPath": null,
+                    "position": {
+                        "x": 1040,
+                        "y": 80
+                    },
+                    "sn": "/subscriptions/7a329198-ceb1-4e25-9ac3-e98855c16377/resourceGroups/LAB-Static/providers/Microsoft.Network/virtualNetworks/VNet-Hub.WestEurope",
+                    "type": "cloudRouter"
+                },
+                "transit": {
+                    "boxId": null,
+                    "children": [],
+                    "graphType": "pathLookup",
+                    "id": "transit",
+                    "label": "transit",
+                    "parentPath": null,
+                    "position": {
+                        "x": 600,
+                        "y": 80
+                    },
+                    "sn": "transit",
+                    "type": "transit"
+                },
+                "host-10.193.0.132": {
+                    "boxId": "AZURE",
+                    "children": [],
+                    "graphType": "pathLookup",
+                    "id": "host-10.193.0.132",
+                    "label": "host: 10.193.0.132",
+                    "parentPath": null,
+                    "position": {
+                        "x": 1200,
+                        "y": 80
+                    },
+                    "sn": "host-10.193.0.132",
+                    "style": {
+                        "background": "black"
+                    },
+                    "type": "host",
+                    "extra": {
+                        "ip": "10.193.0.132"
+                    }
+                }
+            },
+            "edges": {
+                "vDevice/910413163!L35AC112@Et0/0--vDevice/910416644!L35AC111@Et0/0--#8899": {
+                    "direction": "directed",
+                    "edgeSettingsId": "e75cbfc0-71c1-4026-8803-08b6f52ee26e",
+                    "id": "vDevice/910413163!L35AC112@Et0/0--vDevice/910416644!L35AC111@Et0/0--#8899",
+                    "nextEdgeIds": [
+                        "vDevice/910416644!L35AC111@Et0/1--vDevice/910447043!L35EXR1@Et0/2.119--#8900"
+                    ],
+                    "packet": [
+                        {
+                            "dst": "0000.0c9f.f077",
+                            "etherType": "ip",
+                            "type": "ethernet",
+                            "vlan": 119,
+                            "src": "aabb.cc02.af00"
+                        },
+                        {
+                            "src": [
+                                "10.35.119.172"
+                            ],
+                            "dst": [
+                                "10.193.0.132"
+                            ],
+                            "fragment offset": 0,
+                            "protocol": "tcp",
+                            "ttl": 127,
+                            "type": "ip"
+                        },
+                        {
+                            "dst": [
+                                "80",
+                                "443"
+                            ],
+                            "flags": [],
+                            "src": [
+                                "1024 .. 65535"
+                            ],
+                            "type": "tcp"
+                        }
+                    ],
+                    "positions": {
+                        "arrowHeads": {
+                            "target": [
+                                {
+                                    "x": 178,
+                                    "y": 80
+                                },
+                                {
+                                    "x": 162,
+                                    "y": 74.5
+                                },
+                                {
+                                    "x": 162,
+                                    "y": 85.5
+                                }
+                            ]
+                        },
+                        "labels": {
+                            "source": {
+                                "anchor": {
+                                    "x": 0,
+                                    "y": 0.5
+                                },
+                                "angle": 0,
+                                "position": {
+                                    "x": 88.2842712474619,
+                                    "y": 80.5
+                                }
+                            },
+                            "target": {
+                                "anchor": {
+                                    "x": 1,
+                                    "y": 0.5
+                                },
+                                "angle": 0,
+                                "position": {
+                                    "x": 151.7157287525381,
+                                    "y": 80.5
+                                }
+                            }
+                        },
+                        "line": [
+                            {
+                                "x": 60,
+                                "y": 80
+                            },
+                            {
+                                "x": 162,
+                                "y": 80
+                            }
+                        ]
+                    },
+                    "prevEdgeIds": [],
+                    "severityInfo": {
+                        "0": 0,
+                        "10": 0,
+                        "20": 0,
+                        "30": 0
+                    },
+                    "shift": 0,
+                    "source": "vDevice/910413163",
+                    "style": {
+                        "line": {
+                            "pattern": "solid",
+                            "color": 10079487,
+                            "thickness": 1
+                        }
+                    },
+                    "target": "vDevice/910416644",
+                    "trafficScore": {
+                        "accepted": 0,
+                        "dropped": 0,
+                        "forwarded": 129024,
+                        "total": 129024
+                    },
+                    "sourceIfaceName": "Et0/0",
+                    "targetIfaceName": "Et0/0",
+                    "labels": {
+                        "source": [
+                            {
+                                "text": "Et0/0",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ],
+                        "target": [
+                            {
+                                "text": "Et0/0",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ],
+                        "center": [
+                            {
+                                "text": "119",
+                                "type": "subnet",
+                                "visible": true
+                            }
+                        ]
+                    }
+                },
+                "vDevice/910416644!L35AC111@Et0/1--vDevice/910447043!L35EXR1@Et0/2.119--#8900": {
+                    "direction": "directed",
+                    "edgeSettingsId": "e75cbfc0-71c1-4026-8803-08b6f52ee26e",
+                    "id": "vDevice/910416644!L35AC111@Et0/1--vDevice/910447043!L35EXR1@Et0/2.119--#8900",
+                    "nextEdgeIds": [
+                        "vDevice/910447043!L35EXR1@Et0/2.5--vDevice/910416644!L35AC111@Et0/1--#8901"
+                    ],
+                    "packet": [
+                        {
+                            "dst": "0000.0c9f.f077",
+                            "etherType": "ip",
+                            "type": "ethernet",
+                            "vlan": 119,
+                            "src": "aabb.cc02.af00"
+                        },
+                        {
+                            "src": [
+                                "10.35.119.172"
+                            ],
+                            "dst": [
+                                "10.193.0.132"
+                            ],
+                            "fragment offset": 0,
+                            "protocol": "tcp",
+                            "ttl": 127,
+                            "type": "ip"
+                        },
+                        {
+                            "dst": [
+                                "80",
+                                "443"
+                            ],
+                            "flags": [],
+                            "src": [
+                                "1024 .. 65535"
+                            ],
+                            "type": "tcp"
+                        }
+                    ],
+                    "positions": {
+                        "arrowHeads": {
+                            "target": [
+                                {
+                                    "x": 338.58852223170993,
+                                    "y": 5.054564252041949
+                                },
+                                {
+                                    "x": 321.75289733721576,
+                                    "y": 3.3777415387272125
+                                },
+                                {
+                                    "x": 324.2801794632367,
+                                    "y": 14.083480422872244
+                                }
+                            ]
+                        },
+                        "labels": {
+                            "source": {
+                                "anchor": {
+                                    "x": 0,
+                                    "y": 0.5
+                                },
+                                "angle": 333,
+                                "position": {
+                                    "x": 241.04969212409742,
+                                    "y": 48.85383104482729
+                                }
+                            },
+                            "target": {
+                                "anchor": {
+                                    "x": 1,
+                                    "y": 0.5
+                                },
+                                "angle": 333,
+                                "position": {
+                                    "x": 317.8629270227521,
+                                    "y": 10.447213595499958
+                                }
+                            }
+                        },
+                        "line": [
+                            {
+                                "x": 220,
+                                "y": 64.52294296740538
+                            },
+                            {
+                                "x": 240.82608532634745,
+                                "y": 48.40661744932733
+                            },
+                            {
+                                "x": 317.6393202250021,
+                                "y": 10
+                            },
+                            {
+                                "x": 323.01653840022624,
+                                "y": 8.730610980799728
+                            }
+                        ]
+                    },
+                    "prevEdgeIds": [
+                        "vDevice/910413163!L35AC112@Et0/0--vDevice/910416644!L35AC111@Et0/0--#8899"
+                    ],
+                    "severityInfo": {
+                        "0": 0,
+                        "10": 0,
+                        "20": 0,
+                        "30": 0
+                    },
+                    "shift": 0.5,
+                    "source": "vDevice/910416644",
+                    "style": {
+                        "line": {
+                            "pattern": "solid",
+                            "color": 10079487,
+                            "thickness": 1
+                        }
+                    },
+                    "target": "vDevice/910447043",
+                    "trafficScore": {
+                        "accepted": 0,
+                        "dropped": 0,
+                        "forwarded": 129024,
+                        "total": 129024
+                    },
+                    "sourceIfaceName": "Et0/1",
+                    "targetIfaceName": "Et0/2.119",
+                    "labels": {
+                        "source": [
+                            {
+                                "text": "Et0/1",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ],
+                        "target": [
+                            {
+                                "text": "Et0/2.119",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ],
+                        "center": [
+                            {
+                                "text": "119",
+                                "type": "subnet",
+                                "visible": true
+                            }
+                        ]
+                    }
+                },
+                "vDevice/910447043!L35EXR1@Et0/2.5--vDevice/910416644!L35AC111@Et0/1--#8901": {
+                    "direction": "directed",
+                    "edgeSettingsId": "e75cbfc0-71c1-4026-8803-08b6f52ee26e",
+                    "id": "vDevice/910447043!L35EXR1@Et0/2.5--vDevice/910416644!L35AC111@Et0/1--#8901",
+                    "nextEdgeIds": [
+                        "vDevice/910416644!L35AC111@Et0/3--vDevice/910392991!L35FW2@GigabitEthernet0/1--#8902"
+                    ],
+                    "packet": [
+                        {
+                            "dst": "5000.0008.0002",
+                            "etherType": "ip",
+                            "type": "ethernet",
+                            "vlan": 5,
+                            "src": "0200.3500.0102"
+                        },
+                        {
+                            "src": [
+                                "10.35.119.172"
+                            ],
+                            "dst": [
+                                "10.193.0.132"
+                            ],
+                            "fragment offset": 0,
+                            "protocol": "tcp",
+                            "ttl": 126,
+                            "type": "ip"
+                        },
+                        {
+                            "dst": [
+                                "80",
+                                "443"
+                            ],
+                            "flags": [],
+                            "src": [
+                                "1024 .. 65535"
+                            ],
+                            "type": "tcp"
+                        }
+                    ],
+                    "positions": {
+                        "arrowHeads": {
+                            "target": [
+                                {
+                                    "x": 221.92823247848017,
+                                    "y": 73.96180967037868
+                                },
+                                {
+                                    "x": 238.81423486316828,
+                                    "y": 75.01676154809965
+                                },
+                                {
+                                    "x": 235.89394974947487,
+                                    "y": 64.41148291645868
+                                }
+                            ]
+                        },
+                        "labels": {
+                            "source": {
+                                "anchor": {
+                                    "x": 1,
+                                    "y": 0.5
+                                },
+                                "angle": 333,
+                                "position": {
+                                    "x": 326.8071989327513,
+                                    "y": 28.335757415498275
+                                }
+                            },
+                            "center": {
+                                "anchor": {
+                                    "x": 0.5,
+                                    "y": 0.5
+                                },
+                                "angle": 333,
+                                "position": {
+                                    "x": 288.40058148342393,
+                                    "y": 47.53906614016194
+                                }
+                            },
+                            "target": {
+                                "anchor": {
+                                    "x": 0,
+                                    "y": 0.5
+                                },
+                                "angle": 333,
+                                "position": {
+                                    "x": 249.99396403409656,
+                                    "y": 66.7423748648256
+                                }
+                            }
+                        },
+                        "line": [
+                            {
+                                "x": 344.64496539762945,
+                                "y": 12.814948784915359
+                            },
+                            {
+                                "x": 326.5835921350013,
+                                "y": 27.88854381999832
+                            },
+                            {
+                                "x": 249.7703572363466,
+                                "y": 66.29516126932565
+                            },
+                            {
+                                "x": 237.35409230632158,
+                                "y": 69.71412223227917
+                            }
+                        ]
+                    },
+                    "prevEdgeIds": [
+                        "vDevice/910416644!L35AC111@Et0/1--vDevice/910447043!L35EXR1@Et0/2.119--#8900"
+                    ],
+                    "severityInfo": {
+                        "0": 0,
+                        "10": 0,
+                        "20": 0,
+                        "30": 0
+                    },
+                    "shift": -0.5,
+                    "source": "vDevice/910447043",
+                    "style": {
+                        "line": {
+                            "pattern": "solid",
+                            "color": 10079487,
+                            "thickness": 1
+                        }
+                    },
+                    "target": "vDevice/910416644",
+                    "trafficScore": {
+                        "accepted": 0,
+                        "dropped": 0,
+                        "forwarded": 129024,
+                        "total": 129024
+                    },
+                    "sourceIfaceName": "Et0/2.5",
+                    "targetIfaceName": "Et0/1",
+                    "labels": {
+                        "source": [
+                            {
+                                "text": "Et0/2.5",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ],
+                        "target": [
+                            {
+                                "text": "Et0/1",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ],
+                        "center": [
+                            {
+                                "text": "5",
+                                "type": "subnet",
+                                "visible": true
+                            }
+                        ]
+                    }
+                },
+                "vDevice/910416644!L35AC111@Et0/3--vDevice/910392991!L35FW2@GigabitEthernet0/1--#8902": {
+                    "direction": "directed",
+                    "edgeSettingsId": "e75cbfc0-71c1-4026-8803-08b6f52ee26e",
+                    "id": "vDevice/910416644!L35AC111@Et0/3--vDevice/910392991!L35FW2@GigabitEthernet0/1--#8902",
+                    "nextEdgeIds": [
+                        "vDevice/910392991!L35FW2@GigabitEthernet0/0--transit--#8903"
+                    ],
+                    "packet": [
+                        {
+                            "dst": "5000.0008.0002",
+                            "etherType": "ip",
+                            "type": "ethernet",
+                            "vlan": 5,
+                            "src": "0200.3500.0102"
+                        },
+                        {
+                            "src": [
+                                "10.35.119.172"
+                            ],
+                            "dst": [
+                                "10.193.0.132"
+                            ],
+                            "fragment offset": 0,
+                            "protocol": "tcp",
+                            "ttl": 126,
+                            "type": "ip"
+                        },
+                        {
+                            "dst": [
+                                "80",
+                                "443"
+                            ],
+                            "flags": [],
+                            "src": [
+                                "1024 .. 65535"
+                            ],
+                            "type": "tcp"
+                        }
+                    ],
+                    "positions": {
+                        "arrowHeads": {
+                            "target": [
+                                {
+                                    "x": 378.1430466182295,
+                                    "y": 151.25721864729178
+                                },
+                                {
+                                    "x": 365.33006828401295,
+                                    "y": 140.2083460257572
+                                },
+                                {
+                                    "x": 361.2447708441178,
+                                    "y": 150.42158962549505
+                                }
+                            ]
+                        },
+                        "labels": {
+                            "center": {
+                                "anchor": {
+                                    "x": 0.5,
+                                    "y": 0.5
+                                },
+                                "angle": 22,
+                                "position": {
+                                    "x": 299.814304661823,
+                                    "y": 120.46423834544262
+                                }
+                            }
+                        },
+                        "line": [
+                            {
+                                "x": 220,
+                                "y": 88
+                            },
+                            {
+                                "x": 363.2874195640654,
+                                "y": 145.31496782562613
+                            }
+                        ]
+                    },
+                    "prevEdgeIds": [
+                        "vDevice/910447043!L35EXR1@Et0/2.5--vDevice/910416644!L35AC111@Et0/1--#8901"
+                    ],
+                    "severityInfo": {
+                        "0": 0,
+                        "10": 0,
+                        "20": 0,
+                        "30": 0
+                    },
+                    "shift": 0,
+                    "source": "vDevice/910416644",
+                    "style": {
+                        "line": {
+                            "pattern": "solid",
+                            "color": 10079487,
+                            "thickness": 1
+                        }
+                    },
+                    "target": "vDevice/910392991",
+                    "trafficScore": {
+                        "accepted": 0,
+                        "dropped": 0,
+                        "forwarded": 0,
+                        "total": 0
+                    },
+                    "sourceIfaceName": "Et0/3",
+                    "targetIfaceName": "GigabitEthernet0/1",
+                    "labels": {
+                        "source": [
+                            {
+                                "text": "Et0/3",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ],
+                        "target": [
+                            {
+                                "text": "GigabitEthernet0/1",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ],
+                        "center": [
+                            {
+                                "text": "5",
+                                "type": "subnet",
+                                "visible": true
+                            }
+                        ]
+                    }
+                },
+                "vDevice/910392991!L35FW2@GigabitEthernet0/0--transit--#8903": {
+                    "direction": "directed",
+                    "edgeSettingsId": "c24cb567-e4dc-4bcd-8f97-9c614c4bb6cd",
+                    "id": "vDevice/910392991!L35FW2@GigabitEthernet0/0--transit--#8903",
+                    "nextEdgeIds": [
+                        "transit--vDevice/910393034!VNetGw.Vpn.WestEurope@publicIPAddresses/VPNGw-PIP1--#8906"
+                    ],
+                    "packet": [
+                        {
+                            "dst": "3aa9.b776.add4",
+                            "etherType": "ip",
+                            "type": "ethernet",
+                            "src": "5000.0008.0001"
+                        },
+                        {
+                            "dst": [
+                                "52.166.204.245"
+                            ],
+                            "fragment offset": 0,
+                            "protocol": "esp",
+                            "src": [
+                                "172.29.129.241"
+                            ],
+                            "ttl": 63,
+                            "type": "ip"
+                        },
+                        {
+                            "type": "esp",
+                            "nextHeader": "ip",
+                            "payload": "encrypted"
+                        }
+                    ],
+                    "positions": {
+                        "arrowHeads": {
+                            "target": [
+                                {
+                                    "x": 565.2717212094293,
+                                    "y": 93.89131151622831
+                                },
+                                {
+                                    "x": 548.3734454353175,
+                                    "y": 94.72694053802503
+                                },
+                                {
+                                    "x": 552.4587428752127,
+                                    "y": 104.9401841377629
+                                }
+                            ]
+                        },
+                        "labels": {
+                            "center": {
+                                "anchor": {
+                                    "x": 0.5,
+                                    "y": 0.5
+                                },
+                                "angle": 338,
+                                "position": {
+                                    "x": 486.2468240239638,
+                                    "y": 126.03978687112792
+                                }
+                            }
+                        },
+                        "line": [
+                            {
+                                "x": 420,
+                                "y": 152
+                            },
+                            {
+                                "x": 550.4160941552651,
+                                "y": 99.83356233789397
+                            }
+                        ]
+                    },
+                    "prevEdgeIds": [
+                        "vDevice/910416644!L35AC111@Et0/3--vDevice/910392991!L35FW2@GigabitEthernet0/1--#8902"
+                    ],
+                    "severityInfo": {
+                        "0": 0,
+                        "10": 0,
+                        "20": 0,
+                        "30": 0
+                    },
+                    "shift": 0,
+                    "source": "vDevice/910392991",
+                    "style": {
+                        "line": {
+                            "pattern": "solid",
+                            "color": 13940004,
+                            "thickness": 1
+                        }
+                    },
+                    "target": "transit",
+                    "trafficScore": {
+                        "accepted": 0,
+                        "dropped": 0,
+                        "forwarded": 0,
+                        "total": 0
+                    },
+                    "sourceIfaceName": "GigabitEthernet0/0",
+                    "labels": {
+                        "source": [
+                            {
+                                "text": "GigabitEthernet0/0",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ]
+                    }
+                },
+                "transit--vDevice/910393034!VNetGw.Vpn.WestEurope@publicIPAddresses/VPNGw-PIP1--#8906": {
+                    "direction": "directed",
+                    "edgeSettingsId": "c24cb567-e4dc-4bcd-8f97-9c614c4bb6cd",
+                    "id": "transit--vDevice/910393034!VNetGw.Vpn.WestEurope@publicIPAddresses/VPNGw-PIP1--#8906",
+                    "nextEdgeIds": [
+                        "vDevice/910393034!VNetGw.Vpn.WestEurope@subnets/GatewaySubnet--vDevice/910393037!VNet-Hub.WestEurope@subnets/GatewaySubnet--#8907"
+                    ],
+                    "packet": [
+                        {
+                            "dst": null,
+                            "etherType": "ip",
+                            "type": "ethernet",
+                            "src": null
+                        },
+                        {
+                            "dst": [
+                                "52.166.204.245"
+                            ],
+                            "fragment offset": 0,
+                            "protocol": "esp",
+                            "src": [
+                                "172.29.129.241"
+                            ],
+                            "ttl": 63,
+                            "type": "ip"
+                        },
+                        {
+                            "type": "esp",
+                            "nextHeader": "ip",
+                            "payload": "encrypted"
+                        }
+                    ],
+                    "positions": {
+                        "arrowHeads": {
+                            "target": [
+                                {
+                                    "x": 778.4272251347998,
+                                    "y": 115.68544502695997
+                                },
+                                {
+                                    "x": 763.816573067005,
+                                    "y": 107.15439314844896
+                                },
+                                {
+                                    "x": 761.6592955804849,
+                                    "y": 117.94078058104908
+                                }
+                            ]
+                        },
+                        "labels": {
+                            "center": {
+                                "anchor": {
+                                    "x": 0.5,
+                                    "y": 0.5
+                                },
+                                "angle": 11,
+                                "position": {
+                                    "x": 718.6847289203649,
+                                    "y": 104.24684773543228
+                                }
+                            }
+                        },
+                        "line": [
+                            {
+                                "x": 646.900099910902,
+                                "y": 89.38001998218039
+                            },
+                            {
+                                "x": 762.737934323745,
+                                "y": 112.54758686474902
+                            }
+                        ]
+                    },
+                    "prevEdgeIds": [
+                        "vDevice/910392991!L35FW2@GigabitEthernet0/0--transit--#8903"
+                    ],
+                    "severityInfo": {
+                        "0": 0,
+                        "10": 0,
+                        "20": 0,
+                        "30": 0
+                    },
+                    "shift": 0,
+                    "source": "transit",
+                    "style": {
+                        "line": {
+                            "pattern": "solid",
+                            "color": 13940004,
+                            "thickness": 1
+                        }
+                    },
+                    "target": "vDevice/910393034",
+                    "trafficScore": {
+                        "accepted": 0,
+                        "dropped": 0,
+                        "forwarded": 129024,
+                        "total": 129024
+                    },
+                    "targetIfaceName": "publicIPAddresses/VPNGw-PIP1",
+                    "labels": {
+                        "target": [
+                            {
+                                "text": "publicIPAddresses/VPNGw-PIP1",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ]
+                    }
+                },
+                "vDevice/910393034!VNetGw.Vpn.WestEurope@subnets/GatewaySubnet--vDevice/910393037!VNet-Hub.WestEurope@subnets/GatewaySubnet--#8907": {
+                    "direction": "directed",
+                    "edgeSettingsId": "a8092d28-cee8-42f8-8179-79182996b924",
+                    "id": "vDevice/910393034!VNetGw.Vpn.WestEurope@subnets/GatewaySubnet--vDevice/910393037!VNet-Hub.WestEurope@subnets/GatewaySubnet--#8907",
+                    "nextEdgeIds": [
+                        "vDevice/910393037!VNet-Hub.WestEurope@subnets/subnet.0--host-10.193.0.132--#8908"
+                    ],
+                    "packet": [
+                        {
+                            "src": [
+                                "10.35.119.172"
+                            ],
+                            "dst": [
+                                "10.193.0.132"
+                            ],
+                            "fragment offset": 0,
+                            "protocol": "tcp",
+                            "ttl": 124,
+                            "type": "ip"
+                        },
+                        {
+                            "dst": [
+                                "80",
+                                "443"
+                            ],
+                            "flags": [],
+                            "src": [
+                                "1024 .. 65535"
+                            ],
+                            "type": "tcp"
+                        }
+                    ],
+                    "positions": {
+                        "arrowHeads": {
+                            "target": [
+                                {
+                                    "x": 1018.2993336756928,
+                                    "y": 83.61677772071785
+                                },
+                                {
+                                    "x": 1001.612836464199,
+                                    "y": 80.82199493652676
+                                },
+                                {
+                                    "x": 1003.4212253245579,
+                                    "y": 91.67232809868035
+                                }
+                            ]
+                        },
+                        "labels": {
+                            "center": {
+                                "anchor": {
+                                    "x": 0.5,
+                                    "y": 0.5
+                                },
+                                "angle": 351,
+                                "position": {
+                                    "x": 920.0821994936526,
+                                    "y": 100.49319696191607
+                                }
+                            }
+                        },
+                        "line": [
+                            {
+                                "x": 819.7278784766429,
+                                "y": 116.71202025389285
+                            },
+                            {
+                                "x": 1002.5170308943784,
+                                "y": 86.24716151760356
+                            }
+                        ]
+                    },
+                    "prevEdgeIds": [
+                        "transit--vDevice/910393034!VNetGw.Vpn.WestEurope@publicIPAddresses/VPNGw-PIP1--#8906"
+                    ],
+                    "severityInfo": {
+                        "0": 0,
+                        "10": 0,
+                        "20": 0,
+                        "30": 0
+                    },
+                    "shift": 0,
+                    "source": "vDevice/910393034",
+                    "style": {
+                        "line": {
+                            "pattern": "solid",
+                            "color": 16751103,
+                            "thickness": 1
+                        }
+                    },
+                    "target": "vDevice/910393037",
+                    "trafficScore": {
+                        "accepted": 0,
+                        "dropped": 0,
+                        "forwarded": 129024,
+                        "total": 129024
+                    },
+                    "sourceIfaceName": "subnets/GatewaySubnet",
+                    "targetIfaceName": "subnets/GatewaySubnet",
+                    "labels": {
+                        "source": [
+                            {
+                                "text": "subnets/GatewaySubnet",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ],
+                        "target": [
+                            {
+                                "text": "subnets/GatewaySubnet",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ]
+                    }
+                },
+                "vDevice/910393037!VNet-Hub.WestEurope@subnets/subnet.0--host-10.193.0.132--#8908": {
+                    "direction": "directed",
+                    "edgeSettingsId": "a8092d28-cee8-42f8-8179-79182996b924",
+                    "id": "vDevice/910393037!VNet-Hub.WestEurope@subnets/subnet.0--host-10.193.0.132--#8908",
+                    "nextEdgeIds": [],
+                    "packet": [
+                        {
+                            "src": [
+                                "10.35.119.172"
+                            ],
+                            "dst": [
+                                "10.193.0.132"
+                            ],
+                            "fragment offset": 0,
+                            "protocol": "tcp",
+                            "ttl": 123,
+                            "type": "ip"
+                        },
+                        {
+                            "dst": [
+                                "80",
+                                "443"
+                            ],
+                            "flags": [],
+                            "src": [
+                                "1024 .. 65535"
+                            ],
+                            "type": "tcp"
+                        }
+                    ],
+                    "positions": {
+                        "arrowHeads": {
+                            "target": [
+                                {
+                                    "x": 1178,
+                                    "y": 80
+                                },
+                                {
+                                    "x": 1162,
+                                    "y": 74.5
+                                },
+                                {
+                                    "x": 1162,
+                                    "y": 85.5
+                                }
+                            ]
+                        },
+                        "labels": {
+                            "center": {
+                                "anchor": {
+                                    "x": 0.5,
+                                    "y": 0.5
+                                },
+                                "angle": 0,
+                                "position": {
+                                    "x": 1115.857864376269,
+                                    "y": 80.5
+                                }
+                            }
+                        },
+                        "line": [
+                            {
+                                "x": 1060,
+                                "y": 80
+                            },
+                            {
+                                "x": 1162,
+                                "y": 80
+                            }
+                        ]
+                    },
+                    "prevEdgeIds": [
+                        "vDevice/910393034!VNetGw.Vpn.WestEurope@subnets/GatewaySubnet--vDevice/910393037!VNet-Hub.WestEurope@subnets/GatewaySubnet--#8907"
+                    ],
+                    "severityInfo": {
+                        "0": 0,
+                        "10": 0,
+                        "20": 0,
+                        "30": 0
+                    },
+                    "shift": 0,
+                    "source": "vDevice/910393037",
+                    "style": {
+                        "line": {
+                            "pattern": "solid",
+                            "color": 16751103,
+                            "thickness": 1
+                        }
+                    },
+                    "target": "host-10.193.0.132",
+                    "trafficScore": {
+                        "accepted": 0,
+                        "dropped": 0,
+                        "forwarded": 0,
+                        "total": 0
+                    },
+                    "sourceIfaceName": "subnets/subnet.0",
+                    "labels": {
+                        "source": [
+                            {
+                                "text": "subnets/subnet.0",
+                                "type": "intName",
+                                "visible": true
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "settings": {
+            "edges": [
+                {
+                    "id": "6129bb53-d19d-47ee-8f45-8829073221c1",
+                    "grouped": false,
+                    "type": "pathLookupEdge",
+                    "name": "vxlan",
+                    "visible": true,
+                    "labels": [
+                        "intName",
+                        "protocol"
+                    ],
+                    "style": {
+                        "color": "#d4b524",
+                        "pattern": "solid",
+                        "thicknessThresholds": [
+                            2,
+                            4,
+                            8
+                        ]
+                    }
+                },
+                {
+                    "id": "f61ad8e8-ce17-11eb-b8bc-0242ac130003",
+                    "grouped": false,
+                    "type": "pathLookupEdge",
+                    "name": "capwap",
+                    "visible": true,
+                    "labels": [
+                        "intName",
+                        "protocol"
+                    ],
+                    "style": {
+                        "color": "#d4b524",
+                        "pattern": "solid",
+                        "thicknessThresholds": [
+                            2,
+                            4,
+                            8
+                        ]
+                    }
+                },
+                {
+                    "id": "7f6aa12d-84da-4481-a968-2119085d2778",
+                    "grouped": false,
+                    "type": "pathLookupEdge",
+                    "name": "gre",
+                    "visible": true,
+                    "labels": [
+                        "intName",
+                        "protocol"
+                    ],
+                    "style": {
+                        "color": "#d4b524",
+                        "pattern": "solid",
+                        "thicknessThresholds": [
+                            2,
+                            4,
+                            8
+                        ]
+                    }
+                },
+                {
+                    "id": "c24cb567-e4dc-4bcd-8f97-9c614c4bb6cd",
+                    "grouped": false,
+                    "type": "pathLookupEdge",
+                    "name": "esp",
+                    "visible": true,
+                    "labels": [
+                        "intName",
+                        "protocol"
+                    ],
+                    "style": {
+                        "color": "#d4b524",
+                        "pattern": "solid",
+                        "thicknessThresholds": [
+                            2,
+                            4,
+                            8
+                        ]
+                    }
+                },
+                {
+                    "id": "f79f180a-9997-4931-9724-97e66b61b79c",
+                    "grouped": false,
+                    "type": "pathLookupEdge",
+                    "name": "mpls",
+                    "visible": true,
+                    "labels": [
+                        "intName",
+                        "protocol"
+                    ],
+                    "style": {
+                        "color": "#ff9800",
+                        "pattern": "solid",
+                        "thicknessThresholds": [
+                            2,
+                            4,
+                            8
+                        ]
+                    }
+                },
+                {
+                    "id": "e75cbfc0-71c1-4026-8803-08b6f52ee26e",
+                    "grouped": false,
+                    "type": "pathLookupEdge",
+                    "name": "ethernetVlan",
+                    "visible": true,
+                    "labels": [
+                        "intName",
+                        "protocol"
+                    ],
+                    "style": {
+                        "color": "#99ccff",
+                        "pattern": "solid",
+                        "thicknessThresholds": [
+                            2,
+                            4,
+                            8
+                        ]
+                    }
+                },
+                {
+                    "id": "a8092d28-cee8-42f8-8179-79182996b924",
+                    "grouped": false,
+                    "type": "pathLookupEdge",
+                    "name": "ip",
+                    "visible": true,
+                    "labels": [
+                        "intName",
+                        "protocol"
+                    ],
+                    "style": {
+                        "color": "#ff99ff",
+                        "pattern": "solid",
+                        "thicknessThresholds": [
+                            2,
+                            4,
+                            8
+                        ]
+                    }
+                },
+                {
+                    "id": "507051b3-aae8-462d-85c4-d5ba1518a1fd",
+                    "grouped": false,
+                    "type": "pathLookupEdge",
+                    "name": "ethernet",
+                    "visible": true,
+                    "labels": [
+                        "intName",
+                        "protocol"
+                    ],
+                    "style": {
+                        "color": "#7aa3cc",
+                        "pattern": "solid",
+                        "thicknessThresholds": [
+                            2,
+                            4,
+                            8
+                        ]
+                    }
+                }
+            ],
+            "pathLookup": {
+                "ignoredTopics": [],
+                "colorDetectedLoops": true
+            }
+        },
+        "boxLabels": {
+            "35COLO": "35COLO",
+            "AZURE": "AZURE"
+        }
+    },
+    "pathlookup": {
+        "eventsSummary": {
+            "flags": [],
+            "global": [],
+            "topics": {
+                "ACL": {
+                    "0": 0,
+                    "10": 0,
+                    "20": 0,
+                    "30": 10
+                },
+                "FORWARDING": {
+                    "0": 0,
+                    "10": 10,
+                    "20": 20,
+                    "30": 0
+                },
+                "NAT44": {
+                    "0": 10,
+                    "10": 0,
+                    "20": 0,
+                    "30": 0
+                },
+                "PBR": {
+                    "0": 0,
+                    "10": 0,
+                    "20": 0,
+                    "30": 0
+                },
+                "ZONEFW": {
+                    "0": 0,
+                    "10": 0,
+                    "20": 0,
+                    "30": 0
+                }
+            }
+        },
+        "decisions": {
+            "vDevice/910413163": {
+                "traces": [
+                    {
+                        "severityInfo": {
+                            "0": 0,
+                            "10": 0,
+                            "20": 0,
+                            "30": 0
+                        },
+                        "sourcePacketId": "vDevice/910413163@Vl119--generated--#0",
+                        "targetPacketId": "vDevice/910413163!L35AC112@Et0/0--vDevice/910416644!L35AC111@Et0/0--#8899",
+                        "trace": [
+                            {
+                                "chain": "ip-routing",
+                                "phase": "core",
+                                "events": [
+                                    {
+                                        "filter": {
+                                            "mask": 0,
+                                            "vrf": "",
+                                            "prefix": "0.0.0.0"
+                                        },
+                                        "table": "vRoute",
+                                        "type": "table entry match"
+                                    },
+                                    {
+                                        "type": "patch header",
+                                        "index": 0,
+                                        "patch": {
+                                            "ttl": 127
+                                        },
+                                        "headerType": "ip"
+                                    },
+                                    {
+                                        "filter": {
+                                            "ip": "10.35.119.1",
+                                            "vrf": ""
+                                        },
+                                        "table": "vArp",
+                                        "type": "table entry match"
+                                    },
+                                    {
+                                        "filter": {
+                                            "mac": "0000.0c9f.f077",
+                                            "vlanNum": 119
+                                        },
+                                        "table": "vMac",
+                                        "type": "table entry match"
+                                    }
+                                ]
+                            },
+                            {
+                                "chain": "main",
+                                "phase": "out",
+                                "events": [
+                                    {
+                                        "header": {
+                                            "dst": "0000.0c9f.f077",
+                                            "etherType": "ip",
+                                            "type": "ethernet",
+                                            "vlan": 119,
+                                            "src": "aabb.cc02.af00"
+                                        },
+                                        "headerType": "ethernet",
+                                        "index": 0,
+                                        "type": "insert header"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "trafficIn": {},
+                "trafficOut": {
+                    "Et0/0": [
+                        "vDevice/910413163!L35AC112@Et0/0--vDevice/910416644!L35AC111@Et0/0--#8899"
+                    ]
+                }
+            },
+            "vDevice/910416644": {
+                "traces": [
+                    {
+                        "severityInfo": {
+                            "0": 0,
+                            "10": 0,
+                            "20": 0,
+                            "30": 0
+                        },
+                        "sourcePacketId": "vDevice/910413163!L35AC112@Et0/0--vDevice/910416644!L35AC111@Et0/0--#8899",
+                        "targetPacketId": "vDevice/910416644!L35AC111@Et0/1--vDevice/910447043!L35EXR1@Et0/2.119--#8900",
+                        "trace": [
+                            {
+                                "chain": "switching-nexthop",
+                                "phase": "core",
+                                "events": [
+                                    {
+                                        "filter": {
+                                            "inIfaceName": "Et0/0",
+                                            "mac": "0000.0c9f.f077",
+                                            "vlanNum": 119
+                                        },
+                                        "table": "vMac",
+                                        "type": "table entry match"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "severityInfo": {
+                            "0": 0,
+                            "10": 0,
+                            "20": 0,
+                            "30": 0
+                        },
+                        "sourcePacketId": "vDevice/910447043!L35EXR1@Et0/2.5--vDevice/910416644!L35AC111@Et0/1--#8901",
+                        "targetPacketId": "vDevice/910416644!L35AC111@Et0/3--vDevice/910392991!L35FW2@GigabitEthernet0/1--#8902",
+                        "trace": [
+                            {
+                                "chain": "switching-nexthop",
+                                "phase": "core",
+                                "events": [
+                                    {
+                                        "filter": {
+                                            "inIfaceName": "Et0/1",
+                                            "mac": "5000.0008.0002",
+                                            "vlanNum": 5
+                                        },
+                                        "table": "vMac",
+                                        "type": "table entry match"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "trafficIn": {
+                    "Et0/0": [
+                        "vDevice/910413163!L35AC112@Et0/0--vDevice/910416644!L35AC111@Et0/0--#8899"
+                    ],
+                    "Et0/1": [
+                        "vDevice/910447043!L35EXR1@Et0/2.5--vDevice/910416644!L35AC111@Et0/1--#8901"
+                    ]
+                },
+                "trafficOut": {
+                    "Et0/1": [
+                        "vDevice/910416644!L35AC111@Et0/1--vDevice/910447043!L35EXR1@Et0/2.119--#8900"
+                    ],
+                    "Et0/3": [
+                        "vDevice/910416644!L35AC111@Et0/3--vDevice/910392991!L35FW2@GigabitEthernet0/1--#8902"
+                    ]
+                }
+            },
+            "vDevice/910447043": {
+                "traces": [
+                    {
+                        "severityInfo": {
+                            "0": 0,
+                            "10": 0,
+                            "20": 0,
+                            "30": 0
+                        },
+                        "sourcePacketId": "vDevice/910416644!L35AC111@Et0/1--vDevice/910447043!L35EXR1@Et0/2.119--#8900",
+                        "targetPacketId": "vDevice/910447043!L35EXR1@Et0/2.5--vDevice/910416644!L35AC111@Et0/1--#8901",
+                        "trace": [
+                            {
+                                "chain": "main",
+                                "phase": "in",
+                                "events": [
+                                    {
+                                        "type": "packet data match",
+                                        "field": "ethernet.dst",
+                                        "value": "0000.0c9f.f077"
+                                    },
+                                    {
+                                        "type": "remove header",
+                                        "index": 0,
+                                        "headerType": "ethernet"
+                                    }
+                                ]
+                            },
+                            {
+                                "chain": "ip-routing",
+                                "phase": "core",
+                                "events": [
+                                    {
+                                        "filter": {
+                                            "mask": 16,
+                                            "vrf": "",
+                                            "prefix": "10.193.0.0"
+                                        },
+                                        "table": "vRoute",
+                                        "type": "table entry match"
+                                    },
+                                    {
+                                        "type": "patch header",
+                                        "index": 0,
+                                        "patch": {
+                                            "ttl": 126
+                                        },
+                                        "headerType": "ip"
+                                    },
+                                    {
+                                        "filter": {
+                                            "ip": "10.35.253.51",
+                                            "vrf": ""
+                                        },
+                                        "table": "vArp",
+                                        "type": "table entry match"
+                                    }
+                                ]
+                            },
+                            {
+                                "chain": "main",
+                                "phase": "out",
+                                "events": [
+                                    {
+                                        "header": {
+                                            "dst": "5000.0008.0002",
+                                            "etherType": "ip",
+                                            "type": "ethernet",
+                                            "vlan": 5,
+                                            "src": "0200.3500.0102"
+                                        },
+                                        "headerType": "ethernet",
+                                        "index": 0,
+                                        "type": "insert header"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "trafficIn": {
+                    "Et0/2.119": [
+                        "vDevice/910416644!L35AC111@Et0/1--vDevice/910447043!L35EXR1@Et0/2.119--#8900"
+                    ]
+                },
+                "trafficOut": {
+                    "Et0/2.5": [
+                        "vDevice/910447043!L35EXR1@Et0/2.5--vDevice/910416644!L35AC111@Et0/1--#8901"
+                    ]
+                }
+            },
+            "vDevice/910392991": {
+                "traces": [
+                    {
+                        "severityInfo": {
+                            "0": 0,
+                            "10": 0,
+                            "20": 0,
+                            "30": 0
+                        },
+                        "sourcePacketId": "vDevice/910416644!L35AC111@Et0/3--vDevice/910392991!L35FW2@GigabitEthernet0/1--#8902",
+                        "targetPacketId": "vDevice/910392991!L35FW2@GigabitEthernet0/0--transit--#8903",
+                        "trace": [
+                            {
+                                "chain": "main",
+                                "phase": "in",
+                                "events": [
+                                    {
+                                        "type": "packet data match",
+                                        "field": "ethernet.dst",
+                                        "value": "5000.0008.0002"
+                                    },
+                                    {
+                                        "type": "remove header",
+                                        "index": 0,
+                                        "headerType": "ethernet"
+                                    }
+                                ]
+                            },
+                            {
+                                "chain": "ip-routing",
+                                "phase": "core",
+                                "events": [
+                                    {
+                                        "filter": {
+                                            "mask": 24,
+                                            "vrf": "",
+                                            "prefix": "10.193.0.0"
+                                        },
+                                        "table": "vRoute",
+                                        "type": "table entry match"
+                                    },
+                                    {
+                                        "type": "patch header",
+                                        "index": 0,
+                                        "patch": {
+                                            "ttl": 125
+                                        },
+                                        "headerType": "ip"
+                                    }
+                                ]
+                            },
+                            {
+                                "chain": "ipsec-tunnel",
+                                "phase": "core",
+                                "events": [
+                                    {
+                                        "type": "remove header",
+                                        "index": 1,
+                                        "headerType": "tcp"
+                                    },
+                                    {
+                                        "type": "remove header",
+                                        "index": 0,
+                                        "headerType": "ip"
+                                    },
+                                    {
+                                        "header": {
+                                            "type": "esp",
+                                            "nextHeader": "ip",
+                                            "payload": "encrypted"
+                                        },
+                                        "headerType": "esp",
+                                        "index": 0,
+                                        "type": "insert header"
+                                    },
+                                    {
+                                        "header": {
+                                            "dst": [
+                                                "52.166.204.245"
+                                            ],
+                                            "fragment offset": 0,
+                                            "protocol": "esp",
+                                            "src": [
+                                                "172.29.129.241"
+                                            ],
+                                            "ttl": 64,
+                                            "type": "ip"
+                                        },
+                                        "headerType": "ip",
+                                        "index": 0,
+                                        "type": "insert header"
+                                    }
+                                ]
+                            },
+                            {
+                                "chain": "ip-routing",
+                                "phase": "core",
+                                "events": [
+                                    {
+                                        "filter": {
+                                            "mask": 0,
+                                            "vrf": "",
+                                            "prefix": "0.0.0.0"
+                                        },
+                                        "table": "vRoute",
+                                        "type": "table entry match"
+                                    },
+                                    {
+                                        "type": "patch header",
+                                        "index": 0,
+                                        "patch": {
+                                            "ttl": 63
+                                        },
+                                        "headerType": "ip"
+                                    }
+                                ]
+                            },
+                            {
+                                "chain": "main",
+                                "phase": "out",
+                                "events": [
+                                    {
+                                        "header": {
+                                            "dst": "3aa9.b776.add4",
+                                            "etherType": "ip",
+                                            "type": "ethernet",
+                                            "src": "5000.0008.0001"
+                                        },
+                                        "headerType": "ethernet",
+                                        "index": 0,
+                                        "type": "insert header"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "trafficIn": {
+                    "GigabitEthernet0/1": [
+                        "vDevice/910416644!L35AC111@Et0/3--vDevice/910392991!L35FW2@GigabitEthernet0/1--#8902"
+                    ]
+                },
+                "trafficOut": {
+                    "GigabitEthernet0/0": [
+                        "vDevice/910392991!L35FW2@GigabitEthernet0/0--transit--#8903"
+                    ]
+                }
+            },
+            "vDevice/910393034": {
+                "traces": [
+                    {
+                        "severityInfo": {
+                            "0": 0,
+                            "10": 0,
+                            "20": 0,
+                            "30": 0
+                        },
+                        "sourcePacketId": "transit--vDevice/910393034!VNetGw.Vpn.WestEurope@publicIPAddresses/VPNGw-PIP1--#8906",
+                        "targetPacketId": "vDevice/910393034!VNetGw.Vpn.WestEurope@subnets/GatewaySubnet--vDevice/910393037!VNet-Hub.WestEurope@subnets/GatewaySubnet--#8907",
+                        "trace": [
+                            {
+                                "chain": "main",
+                                "phase": "in",
+                                "events": [
+                                    {
+                                        "type": "packet data match",
+                                        "field": "ethernet.dst",
+                                        "value": null
+                                    },
+                                    {
+                                        "type": "remove header",
+                                        "index": 0,
+                                        "headerType": "ethernet"
+                                    },
+                                    {
+                                        "type": "packet data match",
+                                        "field": "ip.dst",
+                                        "value": [
+                                            "52.166.204.245"
+                                        ]
+                                    },
+                                    {
+                                        "type": "remove header",
+                                        "index": 0,
+                                        "headerType": "ip"
+                                    },
+                                    {
+                                        "type": "remove header",
+                                        "index": 0,
+                                        "headerType": "esp"
+                                    },
+                                    {
+                                        "header": {
+                                            "dst": [
+                                                "80",
+                                                "443"
+                                            ],
+                                            "flags": [],
+                                            "src": [
+                                                "1024 .. 65535"
+                                            ],
+                                            "type": "tcp"
+                                        },
+                                        "headerType": "tcp",
+                                        "index": 0,
+                                        "type": "insert header"
+                                    },
+                                    {
+                                        "header": {
+                                            "src": [
+                                                "10.35.119.172"
+                                            ],
+                                            "dst": [
+                                                "10.193.0.132"
+                                            ],
+                                            "fragment offset": 0,
+                                            "protocol": "tcp",
+                                            "ttl": 125,
+                                            "type": "ip"
+                                        },
+                                        "headerType": "ip",
+                                        "index": 0,
+                                        "type": "insert header"
+                                    }
+                                ]
+                            },
+                            {
+                                "chain": "ip-routing",
+                                "phase": "core",
+                                "events": [
+                                    {
+                                        "filter": {
+                                            "mask": 24,
+                                            "vrf": "",
+                                            "prefix": "10.193.0.0"
+                                        },
+                                        "table": "vRoute",
+                                        "type": "table entry match"
+                                    },
+                                    {
+                                        "type": "patch header",
+                                        "index": 0,
+                                        "patch": {
+                                            "ttl": 124
+                                        },
+                                        "headerType": "ip"
+                                    },
+                                    {
+                                        "type": "route detail",
+                                        "value": "subnets__resourceGroups/LAB-Static/providers/Microsoft.Network/virtualNetworks/VNet-Hub.WestEurope/subnets/GatewaySubnet"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "trafficIn": {
+                    "publicIPAddresses/VPNGw-PIP1": [
+                        "transit--vDevice/910393034!VNetGw.Vpn.WestEurope@publicIPAddresses/VPNGw-PIP1--#8906"
+                    ]
+                },
+                "trafficOut": {
+                    "subnets/GatewaySubnet": [
+                        "vDevice/910393034!VNetGw.Vpn.WestEurope@subnets/GatewaySubnet--vDevice/910393037!VNet-Hub.WestEurope@subnets/GatewaySubnet--#8907"
+                    ]
+                }
+            },
+            "vDevice/910393037": {
+                "traces": [
+                    {
+                        "severityInfo": {
+                            "0": 0,
+                            "10": 0,
+                            "20": 0,
+                            "30": 0
+                        },
+                        "sourcePacketId": "vDevice/910393034!VNetGw.Vpn.WestEurope@subnets/GatewaySubnet--vDevice/910393037!VNet-Hub.WestEurope@subnets/GatewaySubnet--#8907",
+                        "targetPacketId": "vDevice/910393037!VNet-Hub.WestEurope@subnets/subnet.0--host-10.193.0.132--#8908",
+                        "trace": [
+                            {
+                                "chain": "ip-routing",
+                                "phase": "core",
+                                "events": [
+                                    {
+                                        "filter": {
+                                            "mask": 26,
+                                            "vrf": "",
+                                            "prefix": "10.193.0.128"
+                                        },
+                                        "table": "vRoute",
+                                        "type": "table entry match"
+                                    },
+                                    {
+                                        "type": "patch header",
+                                        "index": 0,
+                                        "patch": {
+                                            "ttl": 123
+                                        },
+                                        "headerType": "ip"
+                                    }
+                                ]
+                            },
+                            {
+                                "chain": "ip-routing",
+                                "phase": "core",
+                                "events": [
+                                    {
+                                        "filter": {
+                                            "mask": 26,
+                                            "vrf": "subnets/subnet.0",
+                                            "prefix": "10.193.0.128"
+                                        },
+                                        "table": "vRoute",
+                                        "type": "table entry match"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "trafficIn": {
+                    "subnets/GatewaySubnet": [
+                        "vDevice/910393034!VNetGw.Vpn.WestEurope@subnets/GatewaySubnet--vDevice/910393037!VNet-Hub.WestEurope@subnets/GatewaySubnet--#8907"
+                    ]
+                },
+                "trafficOut": {
+                    "subnets/subnet.0": [
+                        "vDevice/910393037!VNet-Hub.WestEurope@subnets/subnet.0--host-10.193.0.132--#8908"
+                    ]
+                }
+            }
+        },
+        "passingTraffic": "all",
+        "check": {
+            "exists": false
+        }
+    }
+}
