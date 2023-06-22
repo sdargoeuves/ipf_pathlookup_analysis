@@ -185,6 +185,21 @@ def follow_path_first_option(pathlookup_edges: dict):
     Returns:
     None
     """
+    def replace_vdevice_id(prev_next_edge_dict: dict):
+        """
+        We check the nextEdgeId and if it contains no hostname (!) we look for it
+
+        pathlookup_edges[prev_next_edge_id]["nextEdgeIds"][0]
+        """
+        next_edge_id = prev_next_edge_dict["nextEdgeIds"][0]
+        if len(next_edge_id.split("!")) == 1:
+            device_id = next_edge_id.split("@")[0] if len(next_edge_id.split("@")) > 0 else None
+            if device_id:
+                hostname = prev_next_edge_dict["id"].split(f"{device_id}!")[1].split('@')[0]
+                return next_edge_id.replace(device_id,"!".join([device_id,hostname]))
+        else:
+            return next_edge_id
+
     # Start from the first entry in the pathlookup_edges dictionary
     first_edge = next(iter(pathlookup_edges.values()))
 
@@ -193,17 +208,21 @@ def follow_path_first_option(pathlookup_edges: dict):
 
     # Follow the first option for egress interfaces until there is no next edge
     next_edge_id = first_edge["nextEdgeIds"][0] if len(first_edge["nextEdgeIds"]) > 0 else None
-    last_edge_id = first_edge["id"]
+    prev_next_edge_id = first_edge["id"]
     while next_edge_id is not None:
         if next_edge_id in pathlookup_edges:
             first_path_edges.append(pathlookup_edges[next_edge_id]["id"])
         else:
-            first_path_edges.append(pathlookup_edges[last_edge_id]["nextEdgeIds"][0])
-        last_edge_id = next_edge_id
+            # in this situation we can encounter this nextEdgeIds
+            # vDevice/913624679@ge-0/0/4.200--dropped--#0
+            # we need to add the hostname
+            new_nextedge_id = replace_vdevice_id(pathlookup_edges[prev_next_edge_id])
+            first_path_edges.append(new_nextedge_id)
+        prev_next_edge_id = next_edge_id
         next_edge_id = (
-            pathlookup_edges[last_edge_id]["nextEdgeIds"][0]
-            if last_edge_id in pathlookup_edges
-            and len(pathlookup_edges[last_edge_id]["nextEdgeIds"]) > 0
+            pathlookup_edges[prev_next_edge_id]["nextEdgeIds"][0]
+            if prev_next_edge_id in pathlookup_edges
+            and len(pathlookup_edges[prev_next_edge_id]["nextEdgeIds"]) > 0
             else None
         )
 
@@ -225,37 +244,32 @@ def follow_path_first_option(pathlookup_edges: dict):
         print(edge)
 
     # Build the new Display (ASCII GRAPH)
-    # generate_ascii_graph(processed_path)
+    generate_ascii_graph(processed_path)
 
 def generate_ascii_graph(processed_path: list):
     #Define a dictionary to store the connections between devices
 
     # Define a function to recursively build the ASCII graph
-    def build_graph(device, interface=None, prefix='', visited=None, source_interface=None):
-        debug()
-        if visited is None:
-            visited = set()
-        if device in visited:
-            return
-        visited.add(device)
-        if interface:
-            if source_interface:
-                print(prefix[:-1] + '|' + interface + '.' + source_interface)
-            else:
-                print(prefix[:-1] + '|' + interface)
-        print(prefix[:-1] + device)
+    def build_graph(device, path_id='', device_visited=None):
+        # Print the current device with the given prefix
+        print(device)
+        # If the device has connections, recursively print them
+        if device_visited is None:
+            device_visited = {}
+        if device in device_visited:
+            device_visited[device] += 1
+        else:
+            device_visited[device] = 0
         if device in connections:
-            for neighbor in connections[device]:
-                neighbor_int = neighbor[0]
-                if neighbor_int is None:
-                    neighbor_int = neighbor[1]
-                if neighbor_int:
-                    if source_interface:
-                        build_graph(neighbor[2], interface=neighbor_int, prefix=' ' * 1 + '|', visited=visited, source_interface=source_interface)
-                    else:
-                        build_graph(neighbor[2], interface=neighbor_int, prefix=' ' * 1 + '|', visited=visited, source_interface=interface)
+            (egress, neighbor_ingress, neighbor, id) = connections[device][device_visited[device]]
+            if egress and neighbor_ingress:
+                if egress == neighbor_ingress:
+                    print(f" |{egress}")
                 else:
-                    build_graph(neighbor[2], prefix=' ' * 1 + '|', visited=visited, source_interface=source_interface)
+                    print(f" |{egress}\n |{neighbor_ingress}")
+            else:
+                print(f" |{egress or neighbor_ingress}")
+            build_graph(device=neighbor, path_id=id, device_visited=device_visited)
 
 
     connections = {}
@@ -267,14 +281,15 @@ def generate_ascii_graph(processed_path: list):
         # Extract the source and destination devices and interfaces
         source_device = components[0].split('@')[0] if '@' in components[0] else components[0]
         source_int = components[0].split('@')[1] if '@' in components[0] and len(components[0].split('@')) > 1 else None
-        dest_device = components[1].split('@')[0]
+        dest_device = components[1].split('@')[0] if '@' in components[1] else components[1]
         dest_int = components[1].split('@')[1] if '@' in components[1] and len(components[1].split('@')) > 1 else None
+        path_id = components[2] if len(components) > 2 else None
         # Add the connection to the dictionary
         if source_device in connections:
-            connections[source_device].append((source_int, dest_int, dest_device))
+            connections[source_device].append((source_int, dest_int, dest_device, path_id))
         else:
-            connections[source_device] = [(source_int, dest_int, dest_device)]
-
+            connections[source_device] = [(source_int, dest_int, dest_device, path_id)]
+    print(connections)
     if len(connections.keys()) > 0:
         build_graph(next(iter(connections.keys())))
     else:
