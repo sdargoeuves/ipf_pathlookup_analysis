@@ -162,10 +162,16 @@ def display_all_edges(pathlookup_edges: dict):
     
     # Print the list of edges, highlighting multiple egress points
     final_all_edges = []
+    prev_device_src = ""
     for edge in processed_edges:
         if edge not in final_all_edges:
             final_all_edges.append(edge)
-            print("".join([" └ ", edge])) if "multiple-egress" in edge else print(edge)
+            device_src = edge.split("@")[0] if edge.split("@") else ""
+            if device_src == prev_device_src:
+                print("".join([" └ ", edge])) if "multiple-egress" in edge else print(edge)
+            else:
+                print(edge)
+            prev_device_src = device_src
     return final_all_edges
 
 
@@ -183,16 +189,16 @@ def follow_path_first_option(pathlookup_edges: dict):
     first_edge = next(iter(pathlookup_edges.values()))
 
     # Initialize the first path with the ID of the first edge
-    first_path = [first_edge["id"]]
+    first_path_edges = [first_edge["id"]]
 
     # Follow the first option for egress interfaces until there is no next edge
     next_edge_id = first_edge["nextEdgeIds"][0] if len(first_edge["nextEdgeIds"]) > 0 else None
     last_edge_id = first_edge["id"]
     while next_edge_id is not None:
         if next_edge_id in pathlookup_edges:
-            first_path.append(pathlookup_edges[next_edge_id]["id"])
+            first_path_edges.append(pathlookup_edges[next_edge_id]["id"])
         else:
-            first_path.append(pathlookup_edges[last_edge_id]["nextEdgeIds"][0])
+            first_path_edges.append(pathlookup_edges[last_edge_id]["nextEdgeIds"][0])
         last_edge_id = next_edge_id
         next_edge_id = (
             pathlookup_edges[last_edge_id]["nextEdgeIds"][0]
@@ -203,7 +209,7 @@ def follow_path_first_option(pathlookup_edges: dict):
 
     # Process and print the first path
     processed_path = []
-    for edge in first_path:
+    for edge in first_path_edges:
         processed_edge = edge.split("--")
         processed_edge = [
             f"{e.split('!')[1]}"
@@ -214,5 +220,62 @@ def follow_path_first_option(pathlookup_edges: dict):
             for e in processed_edge
         ]
         processed_path.append("--".join(processed_edge))
+    # print(processed_path)
     for edge in processed_path:
         print(edge)
+
+    # Build the new Display (ASCII GRAPH)
+    # generate_ascii_graph(processed_path)
+
+def generate_ascii_graph(processed_path: list):
+    #Define a dictionary to store the connections between devices
+
+    # Define a function to recursively build the ASCII graph
+    def build_graph(device, interface=None, prefix='', visited=None, source_interface=None):
+        debug()
+        if visited is None:
+            visited = set()
+        if device in visited:
+            return
+        visited.add(device)
+        if interface:
+            if source_interface:
+                print(prefix[:-1] + '|' + interface + '.' + source_interface)
+            else:
+                print(prefix[:-1] + '|' + interface)
+        print(prefix[:-1] + device)
+        if device in connections:
+            for neighbor in connections[device]:
+                neighbor_int = neighbor[0]
+                if neighbor_int is None:
+                    neighbor_int = neighbor[1]
+                if neighbor_int:
+                    if source_interface:
+                        build_graph(neighbor[2], interface=neighbor_int, prefix=' ' * 1 + '|', visited=visited, source_interface=source_interface)
+                    else:
+                        build_graph(neighbor[2], interface=neighbor_int, prefix=' ' * 1 + '|', visited=visited, source_interface=interface)
+                else:
+                    build_graph(neighbor[2], prefix=' ' * 1 + '|', visited=visited, source_interface=source_interface)
+
+
+    connections = {}
+
+    # Iterate through each input string
+    for edge in processed_path:
+        # Split the string into its components
+        components = edge.split('--')
+        # Extract the source and destination devices and interfaces
+        source_device = components[0].split('@')[0] if '@' in components[0] else components[0]
+        source_int = components[0].split('@')[1] if '@' in components[0] and len(components[0].split('@')) > 1 else None
+        dest_device = components[1].split('@')[0]
+        dest_int = components[1].split('@')[1] if '@' in components[1] and len(components[1].split('@')) > 1 else None
+        # Add the connection to the dictionary
+        if source_device in connections:
+            connections[source_device].append((source_int, dest_int, dest_device))
+        else:
+            connections[source_device] = [(source_int, dest_int, dest_device)]
+
+    if len(connections.keys()) > 0:
+        build_graph(next(iter(connections.keys())))
+    else:
+        print("No graph to build")
