@@ -10,6 +10,7 @@ from modules.pathLookup import (
     display_summary_global,
     display_all_edges,
     follow_path_first_option,
+    display_path_details,
 )
 from rich import print
 
@@ -197,6 +198,7 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
 
     pathlookup_edges = pathlookup_json["graphResult"]["graphData"]["edges"]
     pathlookup_result = pathlookup_json["pathlookup"]
+    pathlookup_decisions = pathlookup_json["pathlookup"]["decisions"]
 
     # Summary
     print("\n[bold] 1. Event Summary[/bold]")
@@ -216,6 +218,7 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
 
     print("\n[bold] 4. Path Decisions[/bold]")
     # get extra information and add it to the result
+    display_path_details(path_first_option, pathlookup_decisions)
 
 if __name__ == "__main__":
     app()

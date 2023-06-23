@@ -9,6 +9,46 @@ AMBER = "20"
 RED = "30"
 COLOUR_DICT = {"Green": GREEN, "Blue": BLUE, "Amber": AMBER, "Red": RED}
 
+def display_severity(value: int):
+    """
+    Display the icon depending on the value
+    """
+    if value == 0:
+        return '✅'  # Green tick
+    elif value == 10:
+        return '🔵'  # Blue ball
+    elif value == 20:
+        return '🟠'  # Amber ball or warning
+    elif value == 30:
+        return '❌'  # Red cross
+    else:
+        return '❓'  # Question mark or other symbol
+
+def remove_vdevice_id(vdevice_id_name: str):
+    """
+    Function to remove the vDevice ID and only keep th ename of the device
+    """
+    return (
+        vdevice_id_name.split("!")[1]
+        if len(vdevice_id_name.split("!")) > 1
+        else vdevice_id_name
+    )
+
+
+def replace_vdevice_id(prev_next_edge_dict: dict):
+    """
+    We check the nextEdgeId and if it contains no hostname (!) we look for it
+
+    pathlookup_edges[prev_next_edge_id]["nextEdgeIds"][0]
+    """
+    next_edge_id = prev_next_edge_dict["nextEdgeIds"][0]
+    if len(next_edge_id.split("!")) != 1:
+        return next_edge_id
+    device_id = next_edge_id.split("@")[0] if len(next_edge_id.split("@")) > 0 else None
+    if device_id:
+        hostname = prev_next_edge_dict["id"].split(f"{device_id}!")[1].split('@')[0]
+        return next_edge_id.replace(device_id,"!".join([device_id,hostname]))
+
 def get_json_pathlookup(
     src_ip: str,
     dst_ip: str,
@@ -172,8 +212,8 @@ def display_all_edges(pathlookup_edges: dict):
             else:
                 print(edge)
             prev_device_src = device_src
-    return final_all_edges
 
+    return final_all_edges
 
 def follow_path_first_option(pathlookup_edges: dict):
     """
@@ -185,20 +225,6 @@ def follow_path_first_option(pathlookup_edges: dict):
     Returns:
     None
     """
-    def replace_vdevice_id(prev_next_edge_dict: dict):
-        """
-        We check the nextEdgeId and if it contains no hostname (!) we look for it
-
-        pathlookup_edges[prev_next_edge_id]["nextEdgeIds"][0]
-        """
-        next_edge_id = prev_next_edge_dict["nextEdgeIds"][0]
-        if len(next_edge_id.split("!")) == 1:
-            device_id = next_edge_id.split("@")[0] if len(next_edge_id.split("@")) > 0 else None
-            if device_id:
-                hostname = prev_next_edge_dict["id"].split(f"{device_id}!")[1].split('@')[0]
-                return next_edge_id.replace(device_id,"!".join([device_id,hostname]))
-        else:
-            return next_edge_id
 
     # Start from the first entry in the pathlookup_edges dictionary
     first_edge = next(iter(pathlookup_edges.values()))
@@ -226,34 +252,44 @@ def follow_path_first_option(pathlookup_edges: dict):
             else None
         )
 
-    # Process and print the first path
-    processed_path = []
-    for edge in first_path_edges:
-        processed_edge = edge.split("--")
-        processed_edge = [
-            f"{e.split('!')[1]}"
-            if "!" in e
-            else f"{e.split('@')[1]}"
-            if "@" in e
-            else e
-            for e in processed_edge
-        ]
-        processed_path.append("--".join(processed_edge))
-    # print(processed_path)
-    for edge in processed_path:
-        print(edge)
-
     # Build the new Display (ASCII GRAPH)
-    generate_ascii_graph(processed_path)
+    generate_ascii_graph(first_path_edges)
+    return first_path_edges
 
-def generate_ascii_graph(processed_path: list):
-    #Define a dictionary to store the connections between devices
 
+def get_edge_details(pathlookup_decisions: dict, device: str, egress: str, neighbor_ingress: str, neighbor: str, path_id: str):
+    # Extract the device ID and name from the device argument
+    device_id = device.split("!")[0] if len(device.split("!")) > 1 else None
+    device_name = device.split("!")[1] if len(device.split("!")) > 1 else device
+    
+    # If the device ID is not found, return the device name
+    if not device_id:
+        return device_name
+    target_id = f"{device}@{egress}--{neighbor}@{neighbor_ingress}--{path_id}"
+    traces = [trace["trace"] for trace in pathlookup_decisions[device_id]["traces"] if trace["targetPacketId"] == target_id]
+    # Get the traces for the device from the pathlookup_decisions data
+    # traces = pathlookup_decisions[device_id]["traces"]
+    # Loop through each trace in the traces list
+    for trace in traces:
+        for trace_detail in trace:
+            # Check if any events in the trace contain the word "security"
+            for event in trace_detail['events']:
+                if 'security' in event.get('type', ''):
+                    # Construct a string with the event information
+                    device_info = f"{device_name} | {event['type']} | {event['decidingPolicyName']} | "
+                    device_info += f"{display_severity(event['severityInfo']['severity'])} |"
+                    return device_info
+    
+    # If no security events are found, return the device name
+    return device_name
+
+
+def generate_ascii_graph(path: list, details=False, pathlookup_decisions=None):
     # Define a function to recursively build the ASCII graph
     def build_graph(device, path_id='', device_visited=None):
         # Print the current device with the given prefix
-        print(device)
-        # If the device has connections, recursively print them
+        if not details:
+            display_device = remove_vdevice_id(device)
         if device_visited is None:
             device_visited = {}
         if device in device_visited:
@@ -262,6 +298,9 @@ def generate_ascii_graph(processed_path: list):
             device_visited[device] = 0
         if device in connections:
             (egress, neighbor_ingress, neighbor, id) = connections[device][device_visited[device]]
+            if details:
+                display_device = get_edge_details(pathlookup_decisions, device, egress, neighbor_ingress, neighbor, id)
+            print(display_device)
             if egress and neighbor_ingress:
                 if egress == neighbor_ingress:
                     print(f" |{egress}")
@@ -270,12 +309,13 @@ def generate_ascii_graph(processed_path: list):
             else:
                 print(f" |{egress or neighbor_ingress}")
             build_graph(device=neighbor, path_id=id, device_visited=device_visited)
-
+        else:
+            print(device)
 
     connections = {}
 
     # Iterate through each input string
-    for edge in processed_path:
+    for edge in path:
         # Split the string into its components
         components = edge.split('--')
         # Extract the source and destination devices and interfaces
@@ -289,8 +329,14 @@ def generate_ascii_graph(processed_path: list):
             connections[source_device].append((source_int, dest_int, dest_device, path_id))
         else:
             connections[source_device] = [(source_int, dest_int, dest_device, path_id)]
-    print(connections)
+
     if len(connections.keys()) > 0:
         build_graph(next(iter(connections.keys())))
     else:
         print("No graph to build")
+
+def display_path_details(path: list, pathlookup_decisions: list):
+    """
+    Pretty useless function!
+    """
+    generate_ascii_graph(path, details=True, pathlookup_decisions=pathlookup_decisions)
