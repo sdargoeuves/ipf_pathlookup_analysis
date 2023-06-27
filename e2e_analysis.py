@@ -1,16 +1,18 @@
 import ipaddress
 import json
+import os
 import sys
 from enum import Enum
 
 import typer
 from modules.pathLookup import (
     get_json_pathlookup,
+    get_zonefw_interfaces,
     display_summary_topics,
     display_summary_global,
     display_all_edges,
     follow_path_first_option,
-    display_path_details,
+    display_path,
 )
 from rich import print
 
@@ -182,7 +184,13 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
         print(f"[italic]Debug: ttl:{ttl}, fragment offset:{fragment_offset}")
 
     if not file:
+        base_url = os.getenv("IPF_URL_DEMO")
+        auth = os.getenv("IPF_TOKEN_DEMO")
+        snapshot_id = "12dd8c61-129c-431a-b98b-4c9211571f89"
         pathlookup_json = get_json_pathlookup(
+            base_url,
+            auth,
+            snapshot_id,
             src_ip,
             dst_ip,
             protocol,
@@ -192,9 +200,11 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
             fragment_offset,
             secured_path,
         )
+        zonefw_interfaces = get_zonefw_interfaces(base_url, auth, snapshot_id)
     else:
         # Using json file to generate the output
         pathlookup_json = json.load(file)
+        zonefw_interfaces = None
 
     pathlookup_edges = pathlookup_json["graphResult"]["graphData"]["edges"]
     pathlookup_result = pathlookup_json["pathlookup"]
@@ -210,15 +220,21 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
         print("\n EXIT -> no Path available")
         sys.exit(0)
 
-    print("\n[bold] 2. Path Edges[/bold] (explore all nextEdgeId)")
-    display_all_edges(pathlookup_edges)
+    # print("\n[bold] 2. Path Edges[/bold] (explore all nextEdgeId)")
+    # path_all_edges = display_all_edges(pathlookup_edges)
 
-    print("\n[bold] 3. Path Edges[/bold] (follow one path Only)")
+    print("\n[bold] 3.1 Generate one Path[/bold] (follow one path Only)")
     path_first_option = follow_path_first_option(pathlookup_edges)
 
-    print("\n[bold] 4. Path Decisions[/bold]")
+    print("Done.\n\n[bold] 3.2 Display Decisions[/bold]")
     # get extra information and add it to the result
-    display_path_details(path_first_option, pathlookup_decisions)
+    display_path(
+        path=path_first_option,
+        details=True,
+        pathlookup_decisions=pathlookup_decisions,
+        zonefw_interfaces=zonefw_interfaces,
+    )
+
 
 if __name__ == "__main__":
     app()
