@@ -1,19 +1,28 @@
 import ipaddress
 import json
+import os
 import sys
 from enum import Enum
+from dotenv import find_dotenv, load_dotenv
 
 import typer
 from modules.pathLookup import (
     get_json_pathlookup,
+    get_zonefw_interfaces,
     display_summary_topics,
     display_summary_global,
     display_all_edges,
     follow_path_first_option,
+    display_path,
 )
 from rich import print
 
+IPF_ENV_PREFIX="_TS"
+IPF_SNAPSHOT_OVERWRITE="73eb6288-0330-4778-a053-1e332b408235"
+IPF_VERIFY_OVERWRITE = False
+IPF_TIMEOUT_OVERWRITE = 15
 
+# IPF_SNAPSHOT_OVERWRITE="12dd8c61-129c-431a-b98b-4c9211571f89" # demo1, S01
 class ProtocolChoices(str, Enum):
     tcp = "tcp"
     udp = "udp"
@@ -140,6 +149,12 @@ def main(
         "-sec",
         help="Secure the path: stop the flow when hiting security rules",
     ),
+    l2_exclusion: bool = typer.Option(
+        False,
+        "--l2_exclusion",
+        "-l2",
+        help="Remove L2 from the displayed path",
+    ),
     file: typer.FileText = typer.Option(
         None,
         "--file",
@@ -165,6 +180,8 @@ def main(
     Returns:
     None
     """
+    # Load environment variables
+    load_dotenv(find_dotenv(), override=True)
     # if we use ICMP, we don't need tcp/udp ports
     if protocol == "icmp":
         src_port = 0
@@ -181,7 +198,15 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
         print(f"[italic]Debug: ttl:{ttl}, fragment offset:{fragment_offset}")
 
     if not file:
+        base_url = os.getenv("".join(["IPF_URL",IPF_ENV_PREFIX]))
+        auth = os.getenv("".join(["IPF_TOKEN",IPF_ENV_PREFIX]))
+        snapshot_id = os.getenv("IPF_SNAPSHOT_ID", IPF_SNAPSHOT_OVERWRITE)
+        ipf_verify = os.getenv("IPF_VERIFY", IPF_VERIFY_OVERWRITE)
+        ipf_timeout = os.getenv("IPF_VERIFY", IPF_TIMEOUT_OVERWRITE)
         pathlookup_json = get_json_pathlookup(
+            base_url,
+            auth,
+            snapshot_id,
             src_ip,
             dst_ip,
             protocol,
@@ -190,13 +215,18 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
             ttl,
             fragment_offset,
             secured_path,
+            ipf_verify=ipf_verify,
+            ipf_timeout=ipf_timeout
         )
+        zonefw_interfaces = get_zonefw_interfaces(base_url, auth, snapshot_id, ipf_verify, ipf_timeout)
     else:
         # Using json file to generate the output
         pathlookup_json = json.load(file)
+        zonefw_interfaces = None
 
     pathlookup_edges = pathlookup_json["graphResult"]["graphData"]["edges"]
     pathlookup_result = pathlookup_json["pathlookup"]
+    pathlookup_decisions = pathlookup_json["pathlookup"]["decisions"]
 
     # Summary
     print("\n[bold] 1. Event Summary[/bold]")
@@ -208,14 +238,23 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
         print("\n EXIT -> no Path available")
         sys.exit(0)
 
-    print("\n[bold] 2. Path Edges[/bold] (explore all nextEdgeId)")
-    display_all_edges(pathlookup_edges)
+    print("\n[bold] x. Path Edges[/bold] (explore all nextEdgeId)")
+    path_all_edges = display_all_edges(pathlookup_edges)
 
-    print("\n[bold] 3. Path Edges[/bold] (follow one path Only)")
+    print("\n[bold] 2.1 Generate one Path[/bold] (follow one path Only)")
     path_first_option = follow_path_first_option(pathlookup_edges)
-
-    print("\n[bold] 4. Path Decisions[/bold]")
+    print(path_first_option)
+    print("Done.\n\n[bold] 2.2 Display Decisions[/bold]")
     # get extra information and add it to the result
+    display_path(
+        path=path_first_option,
+        details=True,
+        pathlookup_decisions=pathlookup_decisions,
+        zonefw_interfaces=zonefw_interfaces,
+        l2_exclusion=l2_exclusion
+    )
+
+
 
 if __name__ == "__main__":
     app()
