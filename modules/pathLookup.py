@@ -353,7 +353,7 @@ def get_edge_details(
             security_info = f"{event['type']} | {event['decidingPolicyName']} | "
             security_info += f"{display_severity(event['severityInfo']['severity'])}"
             if zonefw_interfaces:
-                security_info += f"{find_zonefw_interface(device_name, egress, zonefw_interfaces)}"
+                security_info += find_zonefw_interface(device_name, egress, zonefw_interfaces)
 
         return security_info
 
@@ -382,14 +382,12 @@ def get_edge_details(
         :param device: Name of the device
         :param interface: Name of the interface
         :param zonefw_interfaces: Dictionary containing zone firewall interfaces
-        :return: A string with the zone firewall information
+        :return: A string with the zone firewall information, separated by |
         """
         zones = ""
         for intf in zonefw_interfaces:
             if intf["hostname"] == device and intf["intName"] == interface:
-                for zone in intf["zone"]:
-                    zones += f" {zone} |"
-                return zones
+                return f" | {'/'.join(intf['zone'])}"
         return ""
 
     # Extract the device ID and name from the device argument
@@ -428,7 +426,8 @@ def display_path(
     path: list,
     details=False,
     pathlookup_decisions=None,
-    zonefw_interfaces=None
+    zonefw_interfaces=None,
+    l2_exclusion=False
 ):
     """
     Builds and displays a graph representation of a given path.
@@ -437,15 +436,41 @@ def display_path(
     :param details: Flag for displaying detailed edge information
     :param pathlookup_decisions: Dictionary containing path decisions
     :param zonefw_interfaces: Dictionary containing zone firewall interfaces
+    :param l2_exclusion: Flag to remove L2 info from the path
     """
+    # Define a function to remove the entries as per the exclusion
+    def remove_exclusion_protocol(graph_list: list, l2_exclusion: bool):
+        """
+        Removes entries from the graph_list based on the given exclusion criteria.
+
+        :param graph_list: List representing the graph data
+        :param l2_exclusion: Flag to remove L2 info from the path
+        :return: A modified list with the specified entries removed
+        """
+        result = []
+        exclusion = "l2" if l2_exclusion else ""
+        for i, entry in enumerate(graph_list):
+            if i > 0 and i < len(graph_list) - 1:
+                if (exclusion not in entry or "security" in entry) and not entry.startswith(" |"):
+                    # Add the entry if it doesn't meet the exclusion criteria and is not an interface
+                    result.append(entry)
+                elif not entry.startswith(" |"):
+                    if result[-1] != f"...{exclusion} skipped...":
+                        result.append(f"...{exclusion} skipped...")
+            else:
+                result.append(entry)
+                # Add the last entry as is
+            
+        return result
     # Define a function to recursively build the graph
-    def build_graph(device, path_id="", device_visited=None):
+    def build_graph(device, path_id="", device_visited=None, graph_list:list=[]):
         """
         Recursively builds a graph representation of a given path.
 
         :param device: The current device to display
         :param path_id: The id of the current path
         :param device_visited: A dictionary containing visited edges and their count
+        :return: A list containing all decisions to display
         """
         # Print the current device with the given prefix
         if not details:
@@ -474,23 +499,25 @@ def display_path(
                     id,
                     zonefw_interfaces,
                 )
-            print(display_device)
+            graph_list.append(display_device)
             if neighbor in STOP_TRACE:
                 # we set the egress to empty to avoid displaying this information, as the packet is not going out
                 egress = ""
             if egress and neighbor_ingress:
                 # if egress and a neighbor ingress are the same, we won't display twice the info
                 if egress == neighbor_ingress:
-                    print(f" |{egress}")
+                    graph_list.append(f" |{egress}")
                 else:
-                    print(f" |{egress}\n |{neighbor_ingress}")
+                    graph_list.append(f" |{egress}")
+                    graph_list.append(f" |{neighbor_ingress}")
             elif egress or neighbor_ingress:
-                print(f" |{egress or neighbor_ingress}")
+                graph_list.append(f" |{egress or neighbor_ingress}")
             # Recursively build the graph for the neighbor of the current device
-            build_graph(device=neighbor, path_id=id, device_visited=device_visited)
+            build_graph(device=neighbor, path_id=id, device_visited=device_visited, graph_list=graph_list)
         else:
             # Print the device if it has no further connections in the path
-            print(device)
+            graph_list.append(device)
+        return graph_list
 
     # Create a dictionary to store the connections in the path
     connections = {}
@@ -526,7 +553,12 @@ def display_path(
             connections[source_device] = [(source_int, dest_int, dest_device, path_id)]
 
     # Build the graph with the first device in the connections dictionary
+    graph_list = []
     if len(connections.keys()) > 0:
-        build_graph(next(iter(connections.keys())))
+        graph_list = build_graph(next(iter(connections.keys())), graph_list)
+
+    if l2_exclusion:
+        temp_graph_list = remove_exclusion_protocol(graph_list, l2_exclusion)
+        print(temp_graph_list)
     else:
-        print("No graph to build")
+        print(graph_list)

@@ -3,6 +3,7 @@ import json
 import os
 import sys
 from enum import Enum
+from dotenv import find_dotenv, load_dotenv
 
 import typer
 from modules.pathLookup import (
@@ -143,6 +144,12 @@ def main(
         "-sec",
         help="Secure the path: stop the flow when hiting security rules",
     ),
+    l2_exclusion: bool = typer.Option(
+        False,
+        "--l2_exclusion",
+        "-l2",
+        help="Remove L2 from the displayed path",
+    ),
     file: typer.FileText = typer.Option(
         None,
         "--file",
@@ -168,6 +175,8 @@ def main(
     Returns:
     None
     """
+    # Load environment variables
+    load_dotenv(find_dotenv(), override=True)
     # if we use ICMP, we don't need tcp/udp ports
     if protocol == "icmp":
         src_port = 0
@@ -220,8 +229,8 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
         print("\n EXIT -> no Path available")
         sys.exit(0)
 
-    # print("\n[bold] 2. Path Edges[/bold] (explore all nextEdgeId)")
-    # path_all_edges = display_all_edges(pathlookup_edges)
+    print("\n[bold] x. Path Edges[/bold] (explore all nextEdgeId)")
+    path_all_edges = display_all_edges(pathlookup_edges)
 
     print("\n[bold] 2.1 Generate one Path[/bold] (follow one path Only)")
     path_first_option = follow_path_first_option(pathlookup_edges)
@@ -233,7 +242,9 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
         details=True,
         pathlookup_decisions=pathlookup_decisions,
         zonefw_interfaces=zonefw_interfaces,
+        l2_exclusion=l2_exclusion
     )
+
 
 
 if __name__ == "__main__":
