@@ -17,7 +17,12 @@ from modules.pathLookup import (
 )
 from rich import print
 
+IPF_ENV_PREFIX="_TS"
+IPF_SNAPSHOT_OVERWRITE="73eb6288-0330-4778-a053-1e332b408235"
+IPF_VERIFY_OVERWRITE = False
+IPF_TIMEOUT_OVERWRITE = 15
 
+# IPF_SNAPSHOT_OVERWRITE="12dd8c61-129c-431a-b98b-4c9211571f89" # demo1, S01
 class ProtocolChoices(str, Enum):
     tcp = "tcp"
     udp = "udp"
@@ -193,9 +198,11 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
         print(f"[italic]Debug: ttl:{ttl}, fragment offset:{fragment_offset}")
 
     if not file:
-        base_url = os.getenv("IPF_URL_DEMO")
-        auth = os.getenv("IPF_TOKEN_DEMO")
-        snapshot_id = "12dd8c61-129c-431a-b98b-4c9211571f89"
+        base_url = os.getenv("".join(["IPF_URL",IPF_ENV_PREFIX]))
+        auth = os.getenv("".join(["IPF_TOKEN",IPF_ENV_PREFIX]))
+        snapshot_id = os.getenv("IPF_SNAPSHOT_ID", IPF_SNAPSHOT_OVERWRITE)
+        ipf_verify = os.getenv("IPF_VERIFY", IPF_VERIFY_OVERWRITE)
+        ipf_timeout = os.getenv("IPF_VERIFY", IPF_TIMEOUT_OVERWRITE)
         pathlookup_json = get_json_pathlookup(
             base_url,
             auth,
@@ -208,8 +215,10 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
             ttl,
             fragment_offset,
             secured_path,
+            ipf_verify=ipf_verify,
+            ipf_timeout=ipf_timeout
         )
-        zonefw_interfaces = get_zonefw_interfaces(base_url, auth, snapshot_id)
+        zonefw_interfaces = get_zonefw_interfaces(base_url, auth, snapshot_id, ipf_verify, ipf_timeout)
     else:
         # Using json file to generate the output
         pathlookup_json = json.load(file)

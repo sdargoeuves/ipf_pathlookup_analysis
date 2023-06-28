@@ -9,8 +9,9 @@ BLUE = "10"
 AMBER = "20"
 RED = "30"
 COLOUR_DICT = {"Green": GREEN, "Blue": BLUE, "Amber": AMBER, "Red": RED}
-STOP_TRACE = ["dropped"]
-EVENT_HEADER_TYPE = ("vxlan", "capwap", "gre", "esp", "mpls", "ip")
+STOP_TRACE = ["dropped", "accepted"]
+EVENT_HEADER_TYPE = ("vxlan", "capwap", "gre", "esp", "mpls", "ip", "fp")
+L2_EXCLUSION_PROTOCOL = ("l2", "fp")
 CHAIN_SWITCHING = "switching-nexthop"
 
 
@@ -60,6 +61,8 @@ def get_zonefw_interfaces(
     base_url: str,
     auth: str,
     snapshot_id: str,
+    ipf_verify: bool=False,
+    timeout: int=10
 ):
     """
     Get from IP Fabric the tables containing the ZoneFW per Interfaces
@@ -68,6 +71,8 @@ def get_zonefw_interfaces(
         base_url=base_url,
         auth=auth,
         snapshot_id=snapshot_id,
+        verify=ipf_verify,
+        timeout=timeout
     )
     return ipf.technology.security.zone_firewall_interfaces.all()
 
@@ -84,6 +89,8 @@ def get_json_pathlookup(
     ttl: str,
     fragment_offset: str,
     secured_path: bool,
+    ipf_verify: bool=False,
+    ipf_timeout: int=10
 ):
     """
     Call IP Fabric with the given parameters and return the resulting JSON output.
@@ -106,6 +113,8 @@ def get_json_pathlookup(
         base_url=base_url,
         auth=auth,
         snapshot_id=snapshot_id,
+        verify=ipf_verify,
+        timeout=ipf_timeout
     )
     uni = Unicast(
         startingPoint=src_ip,
@@ -448,10 +457,13 @@ def display_path(
         :return: A modified list with the specified entries removed
         """
         result = []
-        exclusion = "l2" if l2_exclusion else ""
+        exclusion = "l2/fp" if l2_exclusion else ""
         for i, entry in enumerate(graph_list):
             if i > 0 and i < len(graph_list) - 1:
-                if (exclusion not in entry or "security" in entry) and not entry.startswith(" |"):
+                if (
+                    all(protocol not in entry for protocol in L2_EXCLUSION_PROTOCOL)
+                    or "security" in entry
+                ) and not entry.startswith(" |"):
                     # Add the entry if it doesn't meet the exclusion criteria and is not an interface
                     result.append(entry)
                 elif not entry.startswith(" |"):
@@ -460,8 +472,9 @@ def display_path(
             else:
                 result.append(entry)
                 # Add the last entry as is
-            
+
         return result
+
     # Define a function to recursively build the graph
     def build_graph(device, path_id="", device_visited=None, graph_list:list=[]):
         """
