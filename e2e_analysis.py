@@ -223,10 +223,10 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
     # print("\n[bold] 2. Path Edges[/bold] (explore all nextEdgeId)")
     # path_all_edges = display_all_edges(pathlookup_edges)
 
-    print("\n[bold] 3.1 Generate one Path[/bold] (follow one path Only)")
+    print("\n[bold] 2.1 Generate one Path[/bold] (follow one path Only)")
     path_first_option = follow_path_first_option(pathlookup_edges)
-
-    print("Done.\n\n[bold] 3.2 Display Decisions[/bold]")
+    print(path_first_option)
+    print("Done.\n\n[bold] 2.2 Display Decisions[/bold]")
     # get extra information and add it to the result
     display_path(
         path=path_first_option,

@@ -10,6 +10,8 @@ AMBER = "20"
 RED = "30"
 COLOUR_DICT = {"Green": GREEN, "Blue": BLUE, "Amber": AMBER, "Red": RED}
 STOP_TRACE = ["dropped"]
+EVENT_HEADER_TYPE = ("vxlan", "capwap", "gre", "esp", "mpls", "ip")
+CHAIN_SWITCHING = "switching-nexthop"
 
 
 def display_severity(value: int):
@@ -309,6 +311,70 @@ def get_edge_details(
     :param zonefw_interfaces: Dictionary containing zone firewall interfaces
     :return: A formatted string with the details of the edge
     """
+    def get_security_traces(traces, security_info=""):
+        """
+        Returns a string with the security event information from the traces.
+
+        :param traces: List containing traces from pathlookup_decisions
+        :param security_info: Optional preexisting string with the security event information
+        :return: A formatted string with the security event information
+        """
+        # Loop through each trace in the traces list and extract the security event details
+        for trace in traces:
+            for trace_detail in trace:
+                # Check if any events in the trace contain the word "security"
+                for event in trace_detail["events"]:
+                    security_info = get_security_event(event, security_info)
+                    if security_info:
+                        # Exit the loop once a match is found
+                        break
+                if security_info:
+                    break
+            if security_info:
+                break
+        
+        return security_info
+
+    def get_security_event(event, security_info=""):
+        """
+        Returns a formatted string with the security event information from the event dictionary.
+
+        :param event: Dictionary containing the security event information
+        :param security_info: Optional preexisting string with the security event information
+        :return: A formatted string with the security event information
+        """
+        # Return the preexisting security info if provided
+        if security_info:
+            return security_info
+        
+        # If no preexisting security info provided, construct the security info string
+        security_info = ""
+        if "security" in event.get("type", ""):
+            security_info = f"{event['type']} | {event['decidingPolicyName']} | "
+            security_info += f"{display_severity(event['severityInfo']['severity'])}"
+            if zonefw_interfaces:
+                security_info += f"{find_zonefw_interface(device_name, egress, zonefw_interfaces)}"
+
+        return security_info
+
+    def get_protocol_traces(traces):
+        """
+        Returns the first matching headerType or 'n/a' if no matches are found.
+
+        :param traces: A list of traces which contain the event dictionary.
+        :return: A formatted string with the protocol event information.
+        """
+        list_header_type = [event.get("headerType", "") for trace in traces for trace_detail in trace for event in trace_detail["events"]]
+        if CHAIN_SWITCHING in [trace_detail["chain"] for trace in traces for trace_detail in trace]:
+            # Return "l2" if CHAIN_SWITCHING is found
+            return "l2"
+        for headerType in EVENT_HEADER_TYPE:
+            if headerType in list_header_type:
+                # Return the first matching headerType
+                return headerType
+        # Return "n/a" if no matches are found
+        return "n/a"
+
     def find_zonefw_interface(device: str, interface: str, zonefw_interfaces):
         """
         Searches for the zoneFW for the specified interface and device.
@@ -339,7 +405,7 @@ def get_edge_details(
         target_id = f"{device_id}@{egress}--{neighbor}--#0"  # vDevice/932810493@ge-0/0/4.200--dropped--#0
     else:
         target_id = f"{device}@{egress}--{neighbor}@{neighbor_ingress}--{path_id}"
-
+    target_id = target_id.replace("@None","")
     # Get the traces for the device from the pathlookup_decisions data
     traces = [
         trace["trace"]
@@ -347,23 +413,15 @@ def get_edge_details(
         if trace["targetPacketId"] == target_id
     ]
 
-    # Loop through each trace in the traces list and extract the security event details
-    for trace in traces:
-        for trace_detail in trace:
-            # Check if any events in the trace contain the word "security"
-            for event in trace_detail["events"]:
-                if "security" in event.get("type", ""):
-                    # Construct a string with the event information
-                    device_info = f"{device_name} | {event['type']} | {event['decidingPolicyName']} | "
-                    device_info += (
-                        f"{display_severity(event['severityInfo']['severity'])} |"
-                    )
-                    if zonefw_interfaces:
-                        device_info += f"{find_zonefw_interface(device_name, egress, zonefw_interfaces)}"
-                    return device_info
+    security_info = ""
+    security_info = get_security_traces(traces, security_info)
+    protocol_info = get_protocol_traces(traces)
+    device_info = f"{device_name} | {protocol_info}"
+    if security_info:
+        device_info +=  f" | {security_info} |"
 
     # If no security events are found, return the device name
-    return device_name
+    return device_info
 
 
 def display_path(
