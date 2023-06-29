@@ -16,6 +16,8 @@ venv/
 env/
 .venv/
 .env/
+.venv
+.env
 
 # IDE-specific files
 .idea/
