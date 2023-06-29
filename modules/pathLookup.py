@@ -1,6 +1,7 @@
-import os
 from ipfabric import IPFClient
 from ipfabric.diagrams import Algorithm, EntryPoint, IPFDiagram, OtherOptions, Unicast
+from .pivot import return_entry_point_pivot
+from .utilis import display_severity, remove_vdevice_id, replace_vdevice_id
 from rich import print
 from ipdb import set_trace as debug
 
@@ -14,47 +15,6 @@ EVENT_HEADER_TYPE = ("vxlan", "capwap", "gre", "esp", "mpls", "ip", "fp")
 L2_EXCLUSION_PROTOCOL = ("l2", "fp")
 CHAIN_SWITCHING = "switching-nexthop"
 
-
-def display_severity(value: int):
-    """
-    Display the icon depending on the value
-    """
-    if value == 0:
-        return "✅"  # Green tick
-    elif value == 10:
-        return "🔵"  # Blue ball
-    elif value == 20:
-        return "🟠"  # Amber ball or warning
-    elif value == 30:
-        return "❌"  # Red cross
-    else:
-        return "❓"  # Question mark or other symbol
-
-
-def remove_vdevice_id(vdevice_id_name: str):
-    """
-    Function to remove the vDevice ID and only keep the name of the device
-    """
-    return (
-        vdevice_id_name.split("!")[1]
-        if len(vdevice_id_name.split("!")) > 1
-        else vdevice_id_name
-    )
-
-
-def replace_vdevice_id(prev_next_edge_dict: dict):
-    """
-    We check the nextEdgeId and if it contains no hostname (!) we look for it
-
-    pathlookup_edges[prev_next_edge_id]["nextEdgeIds"][0]
-    """
-    next_edge_id = prev_next_edge_dict["nextEdgeIds"][0]
-    if len(next_edge_id.split("!")) != 1:
-        return next_edge_id
-    device_id = next_edge_id.split("@")[0] if len(next_edge_id.split("@")) > 0 else None
-    if device_id:
-        hostname = prev_next_edge_dict["id"].split(f"{device_id}!")[1].split("@")[0]
-        return next_edge_id.replace(device_id, "!".join([device_id, hostname]))
 
 
 def get_zonefw_interfaces(
@@ -89,8 +49,11 @@ def get_json_pathlookup(
     ttl: str,
     fragment_offset: str,
     secured_path: bool,
+    pivot: str=None,
     ipf_verify: bool=False,
-    ipf_timeout: int=10
+    ipf_timeout: int=10,
+    ipf_diagram: IPFDiagram=None,
+    ipf_close: bool=True
 ):
     """
     Call IP Fabric with the given parameters and return the resulting JSON output.
@@ -109,13 +72,33 @@ def get_json_pathlookup(
     str: The JSON file returned by IP Fabric.
     """
     # Initialize an IPFDiagram object with the given parameters
-    ipf = IPFDiagram(
-        base_url=base_url,
-        auth=auth,
-        snapshot_id=snapshot_id,
-        verify=ipf_verify,
-        timeout=ipf_timeout
-    )
+    firstHopAlgorithm = {"type": "automatic"}
+    if not ipf_diagram:
+        ipf_diagram = IPFDiagram(
+            base_url=base_url,
+            auth=auth,
+            snapshot_id=snapshot_id,
+            verify=ipf_verify,
+            timeout=ipf_timeout
+        )
+    if pivot:
+        pivot_pathlookup_result = get_json_pathlookup(
+            base_url=base_url,
+            auth=auth,
+            snapshot_id=snapshot_id,
+            ipf_diagram=ipf_diagram,
+            src_ip=pivot,
+            dst_ip=src_ip,
+            protocol=protocol,
+            src_port=src_port,
+            dst_port=dst_port,
+            ttl=ttl,
+            fragment_offset=fragment_offset,
+            secured_path=False,
+            ipf_close=False
+        )
+        entry_points_list = return_entry_point_pivot(pivot_pathlookup_result)
+        firstHopAlgorithm = Algorithm(entryPoints=entry_points_list)
     uni = Unicast(
         startingPoint=src_ip,
         destinationPoint=dst_ip,
@@ -125,13 +108,15 @@ def get_json_pathlookup(
         ttl=ttl,
         fragmentOffset=fragment_offset,
         securedPath=secured_path,
+        firstHopAlgorithm=firstHopAlgorithm,
     )
 
     # Call IP Fabric and retrieve the path lookup JSON file
-    pathlookup_json = ipf.diagram_json(uni)
+    pathlookup_json = ipf_diagram.diagram_json(uni)
 
     # Close the IPFDiagram object
-    ipf.close()
+    if ipf_close:
+        ipf_diagram.close()
 
     # Return the JSON file
     return pathlookup_json

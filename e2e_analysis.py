@@ -17,8 +17,8 @@ from modules.pathLookup import (
 )
 from rich import print
 
-IPF_ENV_PREFIX="_TS"
-IPF_SNAPSHOT_OVERWRITE="73eb6288-0330-4778-a053-1e332b408235"
+IPF_ENV_PREFIX="" #_TS / _DEMO
+IPF_SNAPSHOT_OVERWRITE="$last"# TS:"73eb6288-0330-4778-a053-1e332b408235"
 IPF_VERIFY_OVERWRITE = False
 IPF_TIMEOUT_OVERWRITE = 15
 
@@ -70,6 +70,26 @@ def validate_range_callback(value: int, min_value: int, max_value: int):
         raise typer.BadParameter(f"Value must be between {min_value} and {max_value}")
     return value
 
+def validate_ipv4_address_or_empty(address: str):
+    """
+    Validate that a string is a valid IPv4 address or subnet.
+
+    Parameters:
+    address (str): The string to validate.
+
+    Returns:
+    str: The validated IPv4 address or subnet.
+
+    Raises:
+    BadParameter: If the string is not a valid IPv4 address or subnet.
+    """
+    if not address:
+        return None
+    try:
+        if ipaddress.IPv4Network(address):
+            return address
+    except Exception as e:
+        raise typer.BadParameter(e) from e
 
 def validate_ipv4_address(address: str):
     """
@@ -155,6 +175,13 @@ def main(
         "-l2",
         help="Remove L2 from the displayed path",
     ),
+    pivot: str = typer.Option(
+        None,
+        "--pivot",
+        "-pivot",
+        help="Enter Pivot IPv4 address",
+        callback=validate_ipv4_address_or_empty,
+    ),
     file: typer.FileText = typer.Option(
         None,
         "--file",
@@ -204,19 +231,20 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
         ipf_verify = os.getenv("IPF_VERIFY", IPF_VERIFY_OVERWRITE)
         ipf_timeout = os.getenv("IPF_VERIFY", IPF_TIMEOUT_OVERWRITE)
         pathlookup_json = get_json_pathlookup(
-            base_url,
-            auth,
-            snapshot_id,
-            src_ip,
-            dst_ip,
-            protocol,
-            src_port,
-            dst_port,
-            ttl,
-            fragment_offset,
-            secured_path,
+            base_url=base_url,
+            auth=auth,
+            snapshot_id=snapshot_id,
+            src_ip=src_ip,
+            dst_ip=dst_ip,
+            protocol=protocol,
+            src_port=src_port,
+            dst_port=dst_port,
+            ttl=ttl,
+            fragment_offset=fragment_offset,
+            secured_path=secured_path,
+            pivot=pivot,
             ipf_verify=ipf_verify,
-            ipf_timeout=ipf_timeout
+            ipf_timeout=ipf_timeout,
         )
         zonefw_interfaces = get_zonefw_interfaces(base_url, auth, snapshot_id, ipf_verify, ipf_timeout)
     else:
@@ -234,12 +262,12 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
     display_summary_topics(pathlookup_result)
     display_summary_global(pathlookup_result)
 
-    if not pathlookup_edges.values():
+    if not pathlookup_edges.values() and not pivot:
         print("\n EXIT -> no Path available")
         sys.exit(0)
 
-    print("\n[bold] x. Path Edges[/bold] (explore all nextEdgeId)")
-    path_all_edges = display_all_edges(pathlookup_edges)
+    # print("\n[bold] x. Path Edges[/bold] (explore all nextEdgeId)")
+    # path_all_edges = display_all_edges(pathlookup_edges)
 
     print("\n[bold] 2.1 Generate one Path[/bold] (follow one path Only)")
     path_first_option = follow_path_first_option(pathlookup_edges)
