@@ -34,7 +34,7 @@ def return_entry_point_pivot(pathlookup_json: dict):
         pathlookup_json (dict): The pathlookup graph data in json format
 
     Returns:
-        list: A list of dictionaries containing the device serial number, interface name and hostname
+        list: A dictionary containing the device serial number, interface name and hostname
     """
     pathlookup_edges = pathlookup_json["graphResult"]["graphData"]["edges"]
     pathlookup_nodes = pathlookup_json["graphResult"]["graphData"]["nodes"]
@@ -44,6 +44,6 @@ def return_entry_point_pivot(pathlookup_json: dict):
             device_id = pathlookup_edges[edge]["source"]
             device_name = remove_vdevice_id(str(edge).split("@")[0])
             device_sn = find_device_sn(device_id=device_id, pathlookup_nodes=pathlookup_nodes)
-            return [{"sn": device_sn, "iface":interface_name, "hostname":device_name}]
-    return []
+            return {"sn": device_sn, "iface":interface_name, "hostname":device_name}
+    return None
 

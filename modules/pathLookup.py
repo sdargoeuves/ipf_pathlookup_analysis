@@ -97,8 +97,13 @@ def get_json_pathlookup(
             secured_path=False,
             ipf_close=False
         )
-        entry_points_list = return_entry_point_pivot(pivot_pathlookup_result)
-        firstHopAlgorithm = Algorithm(entryPoints=entry_points_list)
+        if entry_point := return_entry_point_pivot(pivot_pathlookup_result):
+            pivot_msg = f"[blue][italic][bold]Info: [/bold][/blue][/italic]Entry point for the source `{src_ip} is: `{entry_point['hostname']}@{entry_point['iface']}`"
+            firstHopAlgorithm = Algorithm(entryPoints=[entry_point])
+        else:
+            pivot_msg = f"[yellow][italic][bold]Warning: [/bold][/yellow][/italic]Pivot `{pivot}` will not be used. From the pivot to the source `({src_ip})` there is no transit."
+        print(pivot_msg)
+
     uni = Unicast(
         startingPoint=src_ip,
         destinationPoint=dst_ip,

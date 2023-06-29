@@ -216,14 +216,17 @@ def main(
     secured_path_msg = (
         "Security Rules: Stop" if secured_path else "Security Rules: Continue"
     )
+    
     print(
         f"\n--- [reverse]Pathlookup Analysis[/reverse] ---\n\
 Source: [red]{src_ip}[/red]:[blue]{src_port}[/blue] | \
 Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured_path_msg}"
     )
     if verbose:
-        print(f"[italic]Debug: ttl:{ttl}, fragment offset:{fragment_offset}")
-
+        print(f"[italic]Debug: ttl:{ttl}, fragment offset:{fragment_offset}\n")
+    if pivot:
+        print(f"Using pivot IP `{pivot}` to find where the source IP `{src_ip}` is connected\n")
+    
     if not file:
         base_url = os.getenv("".join(["IPF_URL",IPF_ENV_PREFIX]))
         auth = os.getenv("".join(["IPF_TOKEN",IPF_ENV_PREFIX]))
