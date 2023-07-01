@@ -14,11 +14,12 @@ from modules.pathLookup import (
     display_all_edges,
     follow_path_first_option,
     display_path,
+    display_path_v2,
 )
 from rich import print
 
-IPF_ENV_PREFIX="" #_TS / _DEMO
-IPF_SNAPSHOT_OVERWRITE="$last"# TS:"73eb6288-0330-4778-a053-1e332b408235"
+IPF_ENV_PREFIX="_DEMO" #_TS / _DEMO / default to env. variables
+IPF_SNAPSHOT_OVERWRITE="12dd8c61-129c-431a-b98b-4c9211571f89"# TS:"73eb6288-0330-4778-a053-1e332b408235" / DEMO: "12dd8c61-129c-431a-b98b-4c9211571f89"
 IPF_VERIFY_OVERWRITE = False
 IPF_TIMEOUT_OVERWRITE = 15
 
@@ -278,6 +279,13 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
     print("Done.\n\n[bold] 2.2 Display Decisions[/bold]")
     # get extra information and add it to the result
     display_path(
+        path=path_first_option,
+        details=True,
+        pathlookup_decisions=pathlookup_decisions,
+        zonefw_interfaces=zonefw_interfaces,
+        l2_exclusion=l2_exclusion
+    )
+    display_path_v2(
         path=path_first_option,
         details=True,
         pathlookup_decisions=pathlookup_decisions,
