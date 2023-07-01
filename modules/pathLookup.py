@@ -571,10 +571,10 @@ def display_path(
 
 def get_edge_details_v2(
     pathlookup_decisions: dict,
-    device: str,
+    device_name: str,
+    device_id: str,
     edge: str,
     egress: str,
-    ingress: str,
     path_id: str,
     zonefw_interfaces=None,
 ):
@@ -670,36 +670,31 @@ def get_edge_details_v2(
         return ""
 
     # Extract the device ID and name from the device argument
-    debug()
-    device_id = device.split("!")[0] if len(device.split("!")) > 1 else None
-    device_name = device.split("!")[1] if len(device.split("!")) > 1 else device
+    # device_id = device.split("!")[0] if len(device.split("!")) > 1 else None
+    # device_name = device.split("!")[1] if len(device.split("!")) > 1 else device
 
-    # If the device ID is not found, return the device name
-    if not device_id:
-        return device_name
+    # # If the device ID is not found, return the device name
+    # if not device_id:
+    #     return device_name
 
-    # Create the target ID for the edge
-    if neighbor in STOP_TRACE:
-        target_id = f"{device_id}@{egress}--{neighbor}--#0"  # vDevice/932810493@ge-0/0/4.200--dropped--#0
-    else:
-        target_id = f"{device}@{egress}--{neighbor}@{neighbor_ingress}--{path_id}"
-    target_id = target_id.replace("@None","")
     # Get the traces for the device from the pathlookup_decisions data
-    traces = [
-        trace["trace"]
-        for trace in pathlookup_decisions[device_id]["traces"]
-        if trace["targetPacketId"] == target_id
-    ]
+    if device_id:
+        traces = [
+            trace["trace"]
+            for trace in pathlookup_decisions[device_id]["traces"]
+            if trace["sourcePacketId"] == edge
+        ]
+        security_info = ""
+        security_info = get_security_traces(traces, security_info)
+        protocol_info = get_protocol_traces(traces)
+        device_info = f" | {protocol_info}"
+        if security_info:
+            device_info +=  f" | {security_info} |"
 
-    security_info = ""
-    security_info = get_security_traces(traces, security_info)
-    protocol_info = get_protocol_traces(traces)
-    device_info = f"{device_name} | {protocol_info}"
-    if security_info:
-        device_info +=  f" | {security_info} |"
-
-    # If no security events are found, return the device name
-    return device_info
+        # If no security events are found, return the device name
+        return device_info
+    else:
+        return ""
 
 
 def display_path_v2(
@@ -766,7 +761,7 @@ def display_path_v2(
             src_device_name = src_info.split("@")[0] if len(src_info.split("@")) > 1 else src_info
             egress_iface = src_info.split("@")[1] if len(src_info.split("@")) > 1 else "-"
 
-            dst_info = remove_vdevice_id(components[1]) if len(components) > 1 else "0"
+            (dst_info, dst_device_id) = remove_vdevice_id(components[1], return_device_id=True) if len(components) > 1 else ("0","0")
             dst_device_name = dst_info.split("@")[0] if len(dst_info.split("@")) > 1 else dst_info
             ingress_iface = dst_info.split("@")[1] if len(dst_info.split("@")) > 1 else "-"
             
@@ -785,12 +780,11 @@ def display_path_v2(
                 device_info = f"{ingress_iface} | {dst_device_name} | {egress_iface}"
             elif row == len(path) -1:
                 device_info = f"{ingress_iface} | {dst_device_name} | -"
-            
             if details:
                 device_details = get_edge_details_v2(
                     pathlookup_decisions=pathlookup_decisions,
-                    device=dst_device_name,
-                    ingress=ingress_iface,
+                    device_name=dst_device_name,
+                    device_id=dst_device_id,
                     egress=egress_iface,
                     path_id=path_id,
                     edge=edge,
@@ -801,10 +795,7 @@ def display_path_v2(
         
         return output_list
 
-    connections = build_graph(path)
-    # Build the graph with the first device in the connections dictionary
-    if len(connections.keys()) > 0:
-        graph_list = build_graph(next(iter(connections.keys())))
+    graph_list = build_graph(path)
 
     if l2_exclusion:
         temp_graph_list = remove_exclusion_protocol(graph_list, l2_exclusion)

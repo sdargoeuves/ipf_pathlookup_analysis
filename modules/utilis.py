@@ -16,15 +16,21 @@ def display_severity(value: int):
         return "❓"  # Question mark or other symbol
 
 
-def remove_vdevice_id(vdevice_id_name: str):
+def remove_vdevice_id(vdevice_id_name: str, return_device_id: bool=False):
     """
     Function to remove the vDevice ID and only keep the name of the device
     """
-    return (
-        vdevice_id_name.split("!")[1]
-        if len(vdevice_id_name.split("!")) > 1
-        else vdevice_id_name
-    )
+    vdevice_id_name_split = vdevice_id_name.split("!")
+    if not return_device_id:
+        return (
+            vdevice_id_name_split[1]
+            if len(vdevice_id_name_split) > 1
+            else vdevice_id_name
+        )
+    if len(vdevice_id_name_split) > 1:
+        return (vdevice_id_name_split[1], vdevice_id_name_split[0])
+    else:
+        return (vdevice_id_name, None)
 
 
 def replace_vdevice_id(prev_next_edge_dict: dict):
