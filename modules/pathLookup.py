@@ -572,6 +572,7 @@ def display_path(
 def get_edge_details_v2(
     pathlookup_decisions: dict,
     device: str,
+    edge: str,
     egress: str,
     ingress: str,
     path_id: str,
@@ -669,6 +670,7 @@ def get_edge_details_v2(
         return ""
 
     # Extract the device ID and name from the device argument
+    debug()
     device_id = device.split("!")[0] if len(device.split("!")) > 1 else None
     device_name = device.split("!")[1] if len(device.split("!")) > 1 else device
 
@@ -756,8 +758,8 @@ def display_path_v2(
             list: A list containing the summarized decisions to display.
         """
         output_list = []
-        devices = []
         for row, edge in enumerate(path):
+            device_info = ""
             components = edge.split('--')
             
             src_info = remove_vdevice_id(components[0])
@@ -771,7 +773,7 @@ def display_path_v2(
             path_id = components[2] if len(components) > 2 else "0"
             # starting point
             if row == 0:
-                output_list.append(f"- | {src_device_name} | {egress_iface}")
+                device_info = f"- | {src_device_name} | {egress_iface}"
             elif row < len(path) -1:
                 next_edge = path[row+1]
                 next_components = next_edge.split('--')
@@ -780,9 +782,22 @@ def display_path_v2(
                 egress_iface = next_src_info.split("@")[1] if len(next_src_info.split("@")) > 1 else "-"
                 if next_src_device_name != dst_device_name:
                     print(f"WEIRD, those should be the same: {src_device_name} != {dst_device_name}")
-                output_list.append(f"{ingress_iface} | {dst_device_name} | {egress_iface}")
+                device_info = f"{ingress_iface} | {dst_device_name} | {egress_iface}"
             elif row == len(path) -1:
-                output_list.append(f"{ingress_iface} | {dst_device_name} | -")
+                device_info = f"{ingress_iface} | {dst_device_name} | -"
+            
+            if details:
+                device_details = get_edge_details_v2(
+                    pathlookup_decisions=pathlookup_decisions,
+                    device=dst_device_name,
+                    ingress=ingress_iface,
+                    egress=egress_iface,
+                    path_id=path_id,
+                    edge=edge,
+                    zonefw_interfaces=zonefw_interfaces
+                )
+                device_info += device_details
+            output_list.append(device_info)
         
         return output_list
 
