@@ -1,3 +1,4 @@
+import re
 from ipfabric import IPFClient
 from ipfabric.diagrams import Algorithm, EntryPoint, IPFDiagram, OtherOptions, Unicast
 from .pivot import return_entry_point_pivot
@@ -290,306 +291,30 @@ def follow_path_first_option(pathlookup_edges: dict):
     return first_path_edges
 
 
+
 def get_edge_details(
-    pathlookup_decisions: dict,
-    device: str,
-    egress: str,
-    neighbor_ingress: str,
-    neighbor: str,
-    path_id: str,
-    zonefw_interfaces=None,
-):
-    """
-    Returns a formatted string with the details of the edge.
-
-    :param pathlookup_decisions: Dictionary containing path decisions
-    :param device: Source device of the edge
-    :param egress: Egress port of the edge
-    :param neighbor_ingress: Ingress port of the neighbor device
-    :param neighbor: Neighbor device of the edge
-    :param path_id: Id of the current path
-    :param zonefw_interfaces: Dictionary containing zone firewall interfaces
-    :return: A formatted string with the details of the edge
-    """
-    def get_security_traces(traces, security_info=""):
-        """
-        Returns a string with the security event information from the traces.
-
-        :param traces: List containing traces from pathlookup_decisions
-        :param security_info: Optional preexisting string with the security event information
-        :return: A formatted string with the security event information
-        """
-        # Loop through each trace in the traces list and extract the security event details
-        for trace in traces:
-            for trace_detail in trace:
-                # Check if any events in the trace contain the word "security"
-                for event in trace_detail["events"]:
-                    security_info = get_security_event(event, security_info)
-                    if security_info:
-                        # Exit the loop once a match is found
-                        break
-                if security_info:
-                    break
-            if security_info:
-                break
-        
-        return security_info
-
-    def get_security_event(event, security_info=""):
-        """
-        Returns a formatted string with the security event information from the event dictionary.
-
-        :param event: Dictionary containing the security event information
-        :param security_info: Optional preexisting string with the security event information
-        :return: A formatted string with the security event information
-        """
-        # Return the preexisting security info if provided
-        if security_info:
-            return security_info
-        
-        # If no preexisting security info provided, construct the security info string
-        security_info = ""
-        if "security" in event.get("type", ""):
-            security_info = f"{event['type']} | {event['decidingPolicyName']} | "
-            security_info += f"{display_severity(event['severityInfo']['severity'])}"
-            if zonefw_interfaces:
-                security_info += find_zonefw_interface(device_name, egress, zonefw_interfaces)
-
-        return security_info
-
-    def get_protocol_traces(traces):
-        """
-        Returns the first matching headerType or 'n/a' if no matches are found.
-
-        :param traces: A list of traces which contain the event dictionary.
-        :return: A formatted string with the protocol event information.
-        """
-        list_header_type = [event.get("headerType", "") for trace in traces for trace_detail in trace for event in trace_detail["events"]]
-        if CHAIN_SWITCHING in [trace_detail["chain"] for trace in traces for trace_detail in trace]:
-            # Return "l2" if CHAIN_SWITCHING is found
-            return "l2"
-        for headerType in EVENT_HEADER_TYPE:
-            if headerType in list_header_type:
-                # Return the first matching headerType
-                return headerType
-        # Return "n/a" if no matches are found
-        return "n/a"
-
-    def find_zonefw_interface(device: str, interface: str, zonefw_interfaces):
-        """
-        Searches for the zoneFW for the specified interface and device.
-
-        :param device: Name of the device
-        :param interface: Name of the interface
-        :param zonefw_interfaces: Dictionary containing zone firewall interfaces
-        :return: A string with the zone firewall information, separated by |
-        """
-        zones = ""
-        for intf in zonefw_interfaces:
-            if intf["hostname"] == device and intf["intName"] == interface:
-                return f" | {'/'.join(intf['zone'])}"
-        return ""
-
-    # Extract the device ID and name from the device argument
-    device_id = device.split("!")[0] if len(device.split("!")) > 1 else None
-    device_name = device.split("!")[1] if len(device.split("!")) > 1 else device
-
-    # If the device ID is not found, return the device name
-    if not device_id:
-        return device_name
-
-    # Create the target ID for the edge
-    if neighbor in STOP_TRACE:
-        target_id = f"{device_id}@{egress}--{neighbor}--#0"  # vDevice/932810493@ge-0/0/4.200--dropped--#0
-    else:
-        target_id = f"{device}@{egress}--{neighbor}@{neighbor_ingress}--{path_id}"
-    target_id = target_id.replace("@None","")
-    # Get the traces for the device from the pathlookup_decisions data
-    traces = [
-        trace["trace"]
-        for trace in pathlookup_decisions[device_id]["traces"]
-        if trace["targetPacketId"] == target_id
-    ]
-
-    security_info = ""
-    security_info = get_security_traces(traces, security_info)
-    protocol_info = get_protocol_traces(traces)
-    device_info = f"{device_name} | {protocol_info}"
-    if security_info:
-        device_info +=  f" | {security_info} |"
-
-    # If no security events are found, return the device name
-    return device_info
-
-
-def display_path(
-    path: list,
-    details=False,
-    pathlookup_decisions=None,
-    zonefw_interfaces=None,
-    l2_exclusion=False
-):
-    """
-    Builds and displays a graph representation of a given path.
-
-    :param path: Path to display
-    :param details: Flag for displaying detailed edge information
-    :param pathlookup_decisions: Dictionary containing path decisions
-    :param zonefw_interfaces: Dictionary containing zone firewall interfaces
-    :param l2_exclusion: Flag to remove L2 info from the path
-    """
-    # Define a function to remove the entries as per the exclusion
-    def remove_exclusion_protocol(graph_list: list, l2_exclusion: bool):
-        """
-        Removes entries from the graph_list based on the given exclusion criteria.
-
-        :param graph_list: List representing the graph data
-        :param l2_exclusion: Flag to remove L2 info from the path
-        :return: A modified list with the specified entries removed
-        """
-        result = []
-        exclusion = "l2/fp" if l2_exclusion else ""
-        for i, entry in enumerate(graph_list):
-            if i > 0 and i < len(graph_list) - 1:
-                if (
-                    all(protocol not in entry for protocol in L2_EXCLUSION_PROTOCOL)
-                    or "security" in entry
-                ) and not entry.startswith(" |"):
-                    # Add the entry if it doesn't meet the exclusion criteria and is not an interface
-                    result.append(entry)
-                elif not entry.startswith(" |"):
-                    if result[-1] != f"...{exclusion} skipped...":
-                        result.append(f"...{exclusion} skipped...")
-            else:
-                result.append(entry)
-                # Add the last entry as is
-
-        return result
-
-    # Define a function to recursively build the graph
-    def build_graph(device, path_id="", device_visited=None, graph_list:list=[]):
-        """
-        Recursively builds a graph representation of a given path.
-
-        :param device: The current device to display
-        :param path_id: The id of the current path
-        :param device_visited: A dictionary containing visited edges and their count
-        :return: A list containing all decisions to display
-        """
-        # Print the current device with the given prefix
-        if not details:
-            display_device = remove_vdevice_id(device)
-        if device_visited is None:
-            device_visited = {}
-        if device in device_visited:
-            device_visited[device] += 1
-        else:
-            device_visited[device] = 0
-        if device in connections:
-            # Get the details of the edge
-            (egress, neighbor_ingress, neighbor, id) = (
-                connections[device][device_visited[device]]
-                if len(connections[device]) > device_visited[device]
-                else ("", "", "", "")
-            )
-            # Display the edge information
-            if details:
-                display_device = get_edge_details(
-                    pathlookup_decisions,
-                    device,
-                    egress,
-                    neighbor_ingress,
-                    neighbor,
-                    id,
-                    zonefw_interfaces,
-                )
-            graph_list.append(display_device)
-            if neighbor in STOP_TRACE:
-                # we set the egress to empty to avoid displaying this information, as the packet is not going out
-                egress = ""
-            if egress and neighbor_ingress:
-                # if egress and a neighbor ingress are the same, we won't display twice the info
-                if egress == neighbor_ingress:
-                    graph_list.append(f" |{egress}")
-                else:
-                    graph_list.append(f" |{egress}")
-                    graph_list.append(f" |{neighbor_ingress}")
-            elif egress or neighbor_ingress:
-                graph_list.append(f" |{egress or neighbor_ingress}")
-            # Recursively build the graph for the neighbor of the current device
-            build_graph(device=neighbor, path_id=id, device_visited=device_visited, graph_list=graph_list)
-        else:
-            # Print the device if it has no further connections in the path
-            graph_list.append(device)
-        return graph_list
-
-    # Create a dictionary to store the connections in the path
-    connections = {}
-
-    # Iterate through each input path and create a dictionary of connections
-    for edge in path:
-        # Split the string into its components
-        components = edge.split("--")
-        # Extract the source and destination devices and interfaces
-        source_device = (
-            components[0].split("@")[0] if "@" in components[0] else components[0]
-        )
-        source_int = (
-            components[0].split("@")[1]
-            if "@" in components[0] and len(components[0].split("@")) > 1
-            else None
-        )
-        dest_device = (
-            components[1].split("@")[0] if "@" in components[1] else components[1]
-        )
-        dest_int = (
-            components[1].split("@")[1]
-            if "@" in components[1] and len(components[1].split("@")) > 1
-            else None
-        )
-        path_id = components[2] if len(components) > 2 else None
-        # Add the connection to the dictionary
-        if source_device in connections:
-            connections[source_device].append(
-                (source_int, dest_int, dest_device, path_id)
-            )
-        else:
-            connections[source_device] = [(source_int, dest_int, dest_device, path_id)]
-
-    # Build the graph with the first device in the connections dictionary
-    graph_list = []
-    if len(connections.keys()) > 0:
-        graph_list = build_graph(next(iter(connections.keys())), graph_list)
-
-    if l2_exclusion:
-        temp_graph_list = remove_exclusion_protocol(graph_list, l2_exclusion)
-        print(temp_graph_list)
-    else:
-        print(graph_list)
-
-
-
-def get_edge_details_v2(
     pathlookup_decisions: dict,
     device_name: str,
     device_id: str,
     edge: str,
     egress: str,
-    path_id: str,
+    first_edge: bool=False,
     zonefw_interfaces=None,
 ):
     """
-    Returns a formatted string with the details of the edge.
+    Retrieves and returns the details of the given edge.
+    Args:
+        pathlookup_decisions (dict): Dictionary containing path decisions
+        device_name (str): Source device of the edge
+        device_id (str): Unique identifier of the source device
+        edge (str): Edge of the path
+        egress (str): Egress port of the edge
+        first_edge (bool, optional): Flag to indicate if this is the first edge in the path. Defaults to False.
+        zonefw_interfaces (dict, optional): Dictionary containing zone firewall interfaces. Defaults to None.
 
-    :param pathlookup_decisions: Dictionary containing path decisions
-    :param device: Source device of the edge
-    :param egress: Egress port of the edge
-    :param neighbor_ingress: Ingress port of the neighbor device
-    :param neighbor: Neighbor device of the edge
-    :param path_id: Id of the current path
-    :param zonefw_interfaces: Dictionary containing zone firewall interfaces
-    :return: A formatted string with the details of the edge
-    """
+    Returns:
+        str: Formatted string with the details of the edge
+"""
     def get_security_traces(traces, security_info=""):
         """
         Returns a string with the security event information from the traces.
@@ -611,7 +336,7 @@ def get_edge_details_v2(
                     break
             if security_info:
                 break
-        
+
         return security_info
 
     def get_security_event(event, security_info=""):
@@ -625,7 +350,7 @@ def get_edge_details_v2(
         # Return the preexisting security info if provided
         if security_info:
             return security_info
-        
+
         # If no preexisting security info provided, construct the security info string
         security_info = ""
         if "security" in event.get("type", ""):
@@ -678,11 +403,20 @@ def get_edge_details_v2(
     #     return device_name
 
     # Get the traces for the device from the pathlookup_decisions data
+    if first_edge and not device_id:
+        pattern = r'vDevice/(\d+)'
+        match = re.search(pattern, edge)
+        if match:
+            device_id = match[0]
     if device_id:
         traces = [
             trace["trace"]
             for trace in pathlookup_decisions[device_id]["traces"]
             if trace["sourcePacketId"] == edge
+        ] or [
+            trace["trace"]
+            for trace in pathlookup_decisions[device_id]["traces"]
+            if trace["targetPacketId"] == edge
         ]
         security_info = ""
         security_info = get_security_traces(traces, security_info)
@@ -697,7 +431,7 @@ def get_edge_details_v2(
         return ""
 
 
-def display_path_v2(
+def display_path(
     path: list,
     details=False,
     pathlookup_decisions=None,
@@ -756,8 +490,7 @@ def display_path_v2(
         for row, edge in enumerate(path):
             device_info = ""
             components = edge.split('--')
-            
-            src_info = remove_vdevice_id(components[0])
+            (src_info, src_device_id) = remove_vdevice_id(components[0], return_device_id=True)
             src_device_name = src_info.split("@")[0] if len(src_info.split("@")) > 1 else src_info
             egress_iface = src_info.split("@")[1] if len(src_info.split("@")) > 1 else "-"
 
@@ -765,11 +498,24 @@ def display_path_v2(
             dst_device_name = dst_info.split("@")[0] if len(dst_info.split("@")) > 1 else dst_info
             ingress_iface = dst_info.split("@")[1] if len(dst_info.split("@")) > 1 else "-"
             
-            path_id = components[2] if len(components) > 2 else "0"
+            # path_id = components[2] if len(components) > 2 else "0"
             # starting point
+            print((edge, row))
             if row == 0:
                 device_info = f"- | {src_device_name} | {egress_iface}"
-            elif row < len(path) -1:
+                device_details = get_edge_details(
+                    pathlookup_decisions=pathlookup_decisions,
+                    device_name=src_device_name,
+                    device_id=src_device_id,
+                    egress=egress_iface,
+                    first_edge=True,
+                    edge=edge,
+                    zonefw_interfaces=zonefw_interfaces
+                )
+                device_info += device_details
+                output_list.append(device_info)
+            
+            if row < len(path) -1:
                 next_edge = path[row+1]
                 next_components = next_edge.split('--')
                 next_src_info = remove_vdevice_id(next_components[0])
@@ -781,12 +527,12 @@ def display_path_v2(
             elif row == len(path) -1:
                 device_info = f"{ingress_iface} | {dst_device_name} | -"
             if details:
-                device_details = get_edge_details_v2(
+                device_details = get_edge_details(
                     pathlookup_decisions=pathlookup_decisions,
                     device_name=dst_device_name,
                     device_id=dst_device_id,
                     egress=egress_iface,
-                    path_id=path_id,
+                    first_edge=False,
                     edge=edge,
                     zonefw_interfaces=zonefw_interfaces
                 )

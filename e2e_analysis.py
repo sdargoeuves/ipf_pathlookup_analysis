@@ -14,7 +14,6 @@ from modules.pathLookup import (
     display_all_edges,
     follow_path_first_option,
     display_path,
-    display_path_v2,
 )
 from rich import print
 
@@ -279,13 +278,6 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
     print("Done.\n\n[bold] 2.2 Display Decisions[/bold]")
     # get extra information and add it to the result
     display_path(
-        path=path_first_option,
-        details=True,
-        pathlookup_decisions=pathlookup_decisions,
-        zonefw_interfaces=zonefw_interfaces,
-        l2_exclusion=l2_exclusion
-    )
-    display_path_v2(
         path=path_first_option,
         details=True,
         pathlookup_decisions=pathlookup_decisions,
