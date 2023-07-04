@@ -260,36 +260,37 @@ def follow_path_first_option(pathlookup_edges: dict):
     """
 
     # Start from the first entry in the pathlookup_edges dictionary
-    first_edge = next(iter(pathlookup_edges.values()))
+    if pathlookup_edges.values():
+        first_edge = next(iter(pathlookup_edges.values()))
 
-    # Initialize the first path with the ID of the first edge
-    first_path_edges = [first_edge["id"]]
+        # Initialize the first path with the ID of the first edge
+        first_path_edges = [first_edge["id"]]
 
-    # Follow the first option for egress interfaces until there is no next edge
-    next_edge_id = (
-        first_edge["nextEdgeIds"][0] if len(first_edge["nextEdgeIds"]) > 0 else None
-    )
-    prev_next_edge_id = first_edge["id"]
-    while next_edge_id is not None:
-        if next_edge_id in pathlookup_edges:
-            first_path_edges.append(pathlookup_edges[next_edge_id]["id"])
-        else:
-            # in this situation we can encounter this nextEdgeIds
-            # vDevice/913624679@ge-0/0/4.200--dropped--#0
-            # we need to add the hostname
-            new_nextedge_id = replace_vdevice_id(pathlookup_edges[prev_next_edge_id])
-            first_path_edges.append(new_nextedge_id)
-        prev_next_edge_id = next_edge_id
+        # Follow the first option for egress interfaces until there is no next edge
         next_edge_id = (
-            pathlookup_edges[prev_next_edge_id]["nextEdgeIds"][0]
-            if prev_next_edge_id in pathlookup_edges
-            and len(pathlookup_edges[prev_next_edge_id]["nextEdgeIds"]) > 0
-            else None
+            first_edge["nextEdgeIds"][0] if len(first_edge["nextEdgeIds"]) > 0 else None
         )
+        prev_next_edge_id = first_edge["id"]
+        while next_edge_id is not None:
+            if next_edge_id in pathlookup_edges:
+                first_path_edges.append(pathlookup_edges[next_edge_id]["id"])
+            else:
+                # in this situation we can encounter this nextEdgeIds
+                # vDevice/913624679@ge-0/0/4.200--dropped--#0
+                # we need to add the hostname
+                new_nextedge_id = replace_vdevice_id(pathlookup_edges[prev_next_edge_id])
+                first_path_edges.append(new_nextedge_id)
+            prev_next_edge_id = next_edge_id
+            next_edge_id = (
+                pathlookup_edges[prev_next_edge_id]["nextEdgeIds"][0]
+                if prev_next_edge_id in pathlookup_edges
+                and len(pathlookup_edges[prev_next_edge_id]["nextEdgeIds"]) > 0
+                else None
+            )
 
-    # Build the new Display (ASCII GRAPH)
-    # generate_ascii_graph(first_path_edges)
-    return first_path_edges
+        # Build the new Display (ASCII GRAPH)
+        # generate_ascii_graph(first_path_edges)
+        return first_path_edges
 
 
 def get_edge_details(
@@ -474,7 +475,7 @@ def display_path(
         output_table.add_column("Ingress Interface")
         output_table.add_column("Device", style="cyan", no_wrap=True)
         output_table.add_column("Egress Interface")
-        output_table.add_column("Protocol", style="blue")
+        output_table.add_column("Protocol", style="green")
         output_table.add_column("Security")
         output_table.add_column("Rule Chain")
         output_table.add_column("ZoneFW")

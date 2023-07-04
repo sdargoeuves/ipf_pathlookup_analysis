@@ -23,7 +23,8 @@ from modules.pathLookup import (display_all_edges, display_path,
 
 IPF_ENV_PREFIX = "_DEMO"  # _TS / _DEMO / default to env. variables
 # TS:"73eb6288-0330-4778-a053-1e332b408235" / DEMO: "12dd8c61-129c-431a-b98b-4c9211571f89"
-IPF_SNAPSHOT_OVERWRITE = "12dd8c61-129c-431a-b98b-4c9211571f89"
+# Azure day1: "d323b197-35bb-41e5-9a42-d4de9b38ccaa"
+IPF_SNAPSHOT_OVERWRITE = "d323b197-35bb-41e5-9a42-d4de9b38ccaa"
 IPF_VERIFY_OVERWRITE = False
 IPF_TIMEOUT_OVERWRITE = 15
 
@@ -179,7 +180,7 @@ def main(
     ),
     secured_path: bool = typer.Option(
         False,
-        "--security",
+        "--secure_path",
         "-sec",
         help="Secure the path: stop the flow when hiting security rules",
     ),
@@ -234,7 +235,7 @@ def main(
         src_port = 0
         dst_port = 0
     secured_path_msg = (
-        "Security Rules: Stop" if secured_path else "Security Rules: Continue"
+        "Security: Stop" if secured_path else "Security: Continue"
     )
 
     print(
@@ -303,20 +304,23 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
     print("\n[bold] 2. Display Decisions (one path)[/bold]")
     # get extra information and add it to the result
     if table_display:
-        output_table = Table(
-            title=f"Pathlookup Analysis - [red]{src_ip}[/red]:[blue]{src_port}[/blue] -> \
+        table_title = f"Pathlookup Analysis\n[red]{src_ip}[/red]:[blue]{src_port}[/blue] -> \
 [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured_path_msg}"
-        )
+        table_title += f" | pivot: [green]{pivot}[/green]" if pivot else ""
+        output_table = Table(title=table_title)
     else:
         output_table = None
-    display_path(
-        path=path_first_option,
-        details=True,
-        pathlookup_decisions=pathlookup_decisions,
-        zonefw_interfaces=zonefw_interfaces,
-        l2_exclusion=l2_exclusion,
-        output_table=output_table or None,
-    )
+    if path_first_option:
+        display_path(
+            path=path_first_option,
+            details=True,
+            pathlookup_decisions=pathlookup_decisions,
+            zonefw_interfaces=zonefw_interfaces,
+            l2_exclusion=l2_exclusion,
+            output_table=output_table,
+        )
+    else:
+        print("No Path to display")
 
 
 if __name__ == "__main__":
