@@ -22,7 +22,7 @@ Constants:
 -  L2_EXCLUSION_PROTOCOL: A tuple of L2 exclusion protocols.
 -  CHAIN_SWITCHING: The value representing chain switching.
 """
-from utilis import remove_vdevice_id
+from .utilis import remove_vdevice_id
 
 
 def find_device_sn(device_id: str, pathlookup_nodes: dict) -> str:
