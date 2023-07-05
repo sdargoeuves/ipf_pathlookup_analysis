@@ -1,10 +1,10 @@
 # Pathlookup Analysis Tool
 
-This repository contains a Python script for analyzing paths using Pathlookup and displaying the results.
+This repository contains a Python script for analyzing Pathlookup and displaying the results.
 
 ## Introduction
 
-The Pathlookup Analysis Tool is used to analyze network paths between a source and destination IP address. It utilizes the Pathlookup service to retrieve and display the path information.
+The Pathlookup Analysis Tool is used to analyze network path between a source and destination IP address. It utilizes the Pathlookup service to retrieve and display the path information.
 
 ## Prerequisites
 
@@ -72,3 +72,8 @@ Additional Information
 - The --pivot option is used to find where the source IP is connected using a pivot IP.
 
 Feel free to explore different options and customize the analysis based on your needs.
+
+## Limitations / Future development
+
+- Only one path is provided in the output, in case multiple paths are present, the script will always follow the first choice possible as the next hop. No information will be showing in the table regarding ECMP. It also means, if a FW is present only on one path, but not on another, it may not be represented.
+- Multiple ports or IPs as part of the input may not be correctly represented. For example, if you want to see the flow opening result for destination port 80,443 the output will not differentiate which one is allowed/denied.

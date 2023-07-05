@@ -237,15 +237,16 @@ def main(
     secured_path_msg = (
         "Security: Stop" if secured_path else "Security: Continue"
     )
-
-    print(
-        f"\n--- [reverse]Pathlookup Analysis[/reverse] ---\n\
-Source: [red]{src_ip}[/red]:[blue]{src_port}[/blue] | \
-Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured_path_msg}"
-    )
+    summary_path_msg = f"[bold]Pathlookup Analysis[/bold]\n[red]{src_ip}[/red]"
+    summary_path_msg += f":[blue]{src_port}[/blue]" if src_port != 0 else ""
+    summary_path_msg += f" --> [red]{dst_ip}[/red]"
+    summary_path_msg += f":[blue]{dst_port}[/blue]" if dst_port != 0 else ""
+    summary_path_msg += f" | {protocol} | {secured_path_msg}"
+    print(summary_path_msg)
     if verbose:
         print(f"[italic]Debug: ttl:{ttl}, fragment offset:{fragment_offset}\n")
     if pivot:
+        summary_path_msg += f" | Pivot: `{pivot}`"
         print(
             f"Using pivot IP `{pivot}` to find where the source IP `{src_ip}` is connected\n"
         )
@@ -299,17 +300,9 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
 
     # print("\n[bold] 2.1 Generate one Path[/bold] (follow one path Only)")
     path_first_option = follow_path_first_option(pathlookup_edges)
-    # print(path_first_option)
-    # print("Done.\n")
+    
     print("\n[bold] 2. Display Decisions (one path)[/bold]")
-    # get extra information and add it to the result
-    if table_display:
-        table_title = f"Pathlookup Analysis\n[red]{src_ip}[/red]:[blue]{src_port}[/blue] -> \
-[red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured_path_msg}"
-        table_title += f" | pivot: [green]{pivot}[/green]" if pivot else ""
-        output_table = Table(title=table_title)
-    else:
-        output_table = None
+    output_table = Table(title=summary_path_msg) if table_display else None
     if path_first_option:
         display_path(
             path=path_first_option,
