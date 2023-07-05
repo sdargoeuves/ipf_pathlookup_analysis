@@ -1,29 +1,42 @@
+"""
+# Pathlookup analysis
+Script to display one path in IP Fabric for a given source, destination.
+The output will highlight the security matching
+Option to use a pivot IP is possible.
+"""
 import ipaddress
 import json
 import os
 import sys
 from enum import Enum
-from dotenv import find_dotenv, load_dotenv
 
 import typer
-from modules.pathLookup import (
-    get_json_pathlookup,
-    get_zonefw_interfaces,
-    display_summary_topics,
-    display_summary_global,
-    display_all_edges,
-    follow_path_first_option,
-    display_path,
-)
+from dotenv import find_dotenv, load_dotenv
 from rich import print
+from rich.table import Table
 
-IPF_ENV_PREFIX="" #_TS / _DEMO
-IPF_SNAPSHOT_OVERWRITE="$last"# TS:"73eb6288-0330-4778-a053-1e332b408235"
+from modules.pathLookup import (display_all_edges, display_path,
+                                display_summary_global, display_summary_topics,
+                                follow_path_first_option, get_json_pathlookup,
+                                get_zonefw_interfaces)
+
+
+IPF_ENV_PREFIX = "_DEMO"  # _TS / _DEMO / default to env. variables
+# TS:"73eb6288-0330-4778-a053-1e332b408235" / DEMO: "12dd8c61-129c-431a-b98b-4c9211571f89"
+# Azure day1: "d323b197-35bb-41e5-9a42-d4de9b38ccaa"
+IPF_SNAPSHOT_OVERWRITE = "d323b197-35bb-41e5-9a42-d4de9b38ccaa"
 IPF_VERIFY_OVERWRITE = False
 IPF_TIMEOUT_OVERWRITE = 15
 
-# IPF_SNAPSHOT_OVERWRITE="12dd8c61-129c-431a-b98b-4c9211571f89" # demo1, S01
 class ProtocolChoices(str, Enum):
+    """
+    Enum class representing protocol choices.
+
+    Possible values:
+    - tcp: TCP protocol
+    - udp: UDP protocol
+    - icmp: ICMP protocol
+    """
     tcp = "tcp"
     udp = "udp"
     icmp = "icmp"
@@ -70,6 +83,7 @@ def validate_range_callback(value: int, min_value: int, max_value: int):
         raise typer.BadParameter(f"Value must be between {min_value} and {max_value}")
     return value
 
+
 def validate_ipv4_address_or_empty(address: str):
     """
     Validate that a string is a valid IPv4 address or subnet.
@@ -88,8 +102,9 @@ def validate_ipv4_address_or_empty(address: str):
     try:
         if ipaddress.IPv4Network(address):
             return address
-    except Exception as e:
-        raise typer.BadParameter(e) from e
+    except Exception as error:
+        raise typer.BadParameter(error) from error
+
 
 def validate_ipv4_address(address: str):
     """
@@ -107,8 +122,8 @@ def validate_ipv4_address(address: str):
     try:
         if ipaddress.IPv4Network(address):
             return address
-    except Exception as e:
-        raise typer.BadParameter(e) from e
+    except Exception as error:
+        raise typer.BadParameter(error) from error
 
 
 @app.command()
@@ -165,7 +180,7 @@ def main(
     ),
     secured_path: bool = typer.Option(
         False,
-        "--security_",
+        "--secure_path",
         "-sec",
         help="Secure the path: stop the flow when hiting security rules",
     ),
@@ -181,6 +196,9 @@ def main(
         "-pivot",
         help="Enter Pivot IPv4 address",
         callback=validate_ipv4_address_or_empty,
+    ),
+    table_display: bool = typer.Option(
+        False, "--table", "-t", help="Display result in a table format"
     ),
     file: typer.FileText = typer.Option(
         None,
@@ -202,6 +220,9 @@ def main(
     ttl (int): The time-to-live (TTL) value.
     fragment_offset (int): The fragment offset value.
     secured_path (bool): Whether to use a secured path or not.
+    l2_exclusion (bool): Remove L2 and FabricPath information.
+    pivot (str): to use to perform two PathLookup, first to identify where the source is connected
+    table (bool): display the output as a table
     file (FileText): The JSON file containing Pathlookup output (optional).
 
     Returns:
@@ -214,19 +235,24 @@ def main(
         src_port = 0
         dst_port = 0
     secured_path_msg = (
-        "Security Rules: Stop" if secured_path else "Security Rules: Continue"
+        "Security: Stop" if secured_path else "Security: Continue"
     )
+
     print(
         f"\n--- [reverse]Pathlookup Analysis[/reverse] ---\n\
 Source: [red]{src_ip}[/red]:[blue]{src_port}[/blue] | \
 Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured_path_msg}"
     )
     if verbose:
-        print(f"[italic]Debug: ttl:{ttl}, fragment offset:{fragment_offset}")
+        print(f"[italic]Debug: ttl:{ttl}, fragment offset:{fragment_offset}\n")
+    if pivot:
+        print(
+            f"Using pivot IP `{pivot}` to find where the source IP `{src_ip}` is connected\n"
+        )
 
     if not file:
-        base_url = os.getenv("".join(["IPF_URL",IPF_ENV_PREFIX]))
-        auth = os.getenv("".join(["IPF_TOKEN",IPF_ENV_PREFIX]))
+        base_url = os.getenv("".join(["IPF_URL", IPF_ENV_PREFIX]))
+        auth = os.getenv("".join(["IPF_TOKEN", IPF_ENV_PREFIX]))
         snapshot_id = os.getenv("IPF_SNAPSHOT_ID", IPF_SNAPSHOT_OVERWRITE)
         ipf_verify = os.getenv("IPF_VERIFY", IPF_VERIFY_OVERWRITE)
         ipf_timeout = os.getenv("IPF_VERIFY", IPF_TIMEOUT_OVERWRITE)
@@ -246,7 +272,9 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
             ipf_verify=ipf_verify,
             ipf_timeout=ipf_timeout,
         )
-        zonefw_interfaces = get_zonefw_interfaces(base_url, auth, snapshot_id, ipf_verify, ipf_timeout)
+        zonefw_interfaces = get_zonefw_interfaces(
+            base_url, auth, snapshot_id, ipf_verify, ipf_timeout
+        )
     else:
         # Using json file to generate the output
         pathlookup_json = json.load(file)
@@ -269,19 +297,30 @@ Destination: [red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured
     # print("\n[bold] x. Path Edges[/bold] (explore all nextEdgeId)")
     # path_all_edges = display_all_edges(pathlookup_edges)
 
-    print("\n[bold] 2.1 Generate one Path[/bold] (follow one path Only)")
+    # print("\n[bold] 2.1 Generate one Path[/bold] (follow one path Only)")
     path_first_option = follow_path_first_option(pathlookup_edges)
-    print(path_first_option)
-    print("Done.\n\n[bold] 2.2 Display Decisions[/bold]")
+    # print(path_first_option)
+    # print("Done.\n")
+    print("\n[bold] 2. Display Decisions (one path)[/bold]")
     # get extra information and add it to the result
-    display_path(
-        path=path_first_option,
-        details=True,
-        pathlookup_decisions=pathlookup_decisions,
-        zonefw_interfaces=zonefw_interfaces,
-        l2_exclusion=l2_exclusion
-    )
-
+    if table_display:
+        table_title = f"Pathlookup Analysis\n[red]{src_ip}[/red]:[blue]{src_port}[/blue] -> \
+[red]{dst_ip}[/red]:[blue]{dst_port}[/blue] | {protocol} | {secured_path_msg}"
+        table_title += f" | pivot: [green]{pivot}[/green]" if pivot else ""
+        output_table = Table(title=table_title)
+    else:
+        output_table = None
+    if path_first_option:
+        display_path(
+            path=path_first_option,
+            details=True,
+            pathlookup_decisions=pathlookup_decisions,
+            zonefw_interfaces=zonefw_interfaces,
+            l2_exclusion=l2_exclusion,
+            output_table=output_table,
+        )
+    else:
+        print("No Path to display")
 
 
 if __name__ == "__main__":
