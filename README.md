@@ -71,6 +71,9 @@ Additional Information
 - The --l2_exclusion option can be used to remove Layer 2 information from the displayed path.
 - The --pivot option is used to find where the source IP is connected using a pivot IP.
 
+![Example1: script output](img/result01.png)
+![Example2: script output](img/result02.png)
+
 Feel free to explore different options and customize the analysis based on your needs.
 
 ## Limitations / Future development
